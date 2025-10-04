@@ -101,7 +101,7 @@ PROMPT_FINAL = """
 → 你的分析输出:
 ```json
 [
-  {
+  {{
     "id": "concept_photosynthesis",
     "type": "question",
     "title": "光合作用的定义",
@@ -109,8 +109,8 @@ PROMPT_FINAL = """
     "needsResponse": true,
     "reasoning": "概念清晰度检测失败:核心概念'光合作用'未被定义",
     "detectionLayer": "第一层-概念清晰度"
-  },
-  {
+  }},
+  {{
     "id": "logic_growth",
     "type": "question",
     "title": "生长的因果关系",
@@ -118,8 +118,8 @@ PROMPT_FINAL = """
     "needsResponse": true,
     "reasoning": "逻辑连贯性检测失败:从'光合作用'到'生长'存在逻辑跳跃",
     "detectionLayer": "第二层-逻辑连贯性"
-  },
-  {
+  }},
+  {{
     "id": "suggestion_example",
     "type": "suggestion",
     "title": "缺少具体例子",
@@ -127,7 +127,7 @@ PROMPT_FINAL = """
     "needsResponse": false,
     "reasoning": "应用场景检测失败:缺少具体例子支撑抽象概念",
     "detectionLayer": "第三层-应用场景"
-  }
+  }}
 ]
 ```
 
@@ -173,7 +173,7 @@ PROMPT_FINAL = """
 
 ```json
 [
-  {
+  {{
     "id": "唯一标识符",
     "type": "问题类型",
     "title": "简短标题(5-10字)",
@@ -181,7 +181,7 @@ PROMPT_FINAL = """
     "needsResponse": true或false,
     "reasoning": "基于哪层检测或什么思考提出这个问题",
     "detectionLayer": "第X层-检测名称"
-  }
+  }}
 ]
 ```
 
@@ -404,7 +404,13 @@ def analyze_content():
         })
         
     except Exception as e:
-        print(f'AI分析错误: {e}')
+        import traceback
+        print(f'===== AI分析错误 =====')
+        print(f'错误类型: {type(e).__name__}')
+        print(f'错误信息: {str(e)}')
+        print(f'完整堆栈:')
+        traceback.print_exc()
+        print(f'=====================')
         return jsonify({
             'error': 'AI分析失败',
             'message': str(e)
@@ -460,6 +466,29 @@ def clean_json_response(text):
     if text.endswith('```'):
         text = text[:-3]  # 移除结尾的 ```
     
+    # 再次清理所有前后空白字符（包括换行符）
+    text = text.strip()
+    
+    # 找到第一个 '[' 或 '{' 的位置（JSON的开始）
+    json_start = -1
+    for i, char in enumerate(text):
+        if char in '[{':
+            json_start = i
+            break
+    
+    if json_start > 0:
+        text = text[json_start:]
+    
+    # 找到最后一个 ']' 或 '}' 的位置（JSON的结束）
+    json_end = -1
+    for i in range(len(text) - 1, -1, -1):
+        if text[i] in ']}':
+            json_end = i + 1
+            break
+    
+    if json_end > 0:
+        text = text[:json_end]
+    
     return text.strip()
 
 def analyze_with_ai(content, analysis_type='final'):
@@ -492,7 +521,13 @@ def analyze_with_ai(content, analysis_type='final'):
             return json.loads(cleaned_response)
         except json.JSONDecodeError as e:
             # 如果AI返回格式不正确，抛出错误
-            print(f'AI返回的JSON格式不正确: {ai_response}')
+            print(f'===== AI原始响应 =====')
+            print(ai_response)
+            print(f'===== 清理后的响应 =====')
+            print(cleaned_response)
+            print(f'===== JSON解析错误 =====')
+            print(f'错误位置: {e.pos}, 行: {e.lineno}, 列: {e.colno}')
+            print(f'错误信息: {e.msg}')
             raise ValueError(f'AI返回的响应不是有效的JSON格式: {str(e)}')
             
     except Exception as e:

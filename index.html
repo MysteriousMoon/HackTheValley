@@ -1,49 +1,47 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>费曼学习法AI助手</title>
+    <title>Feynman Learning Method AI Assistant</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header>
-        <h1>📚 费曼学习法AI助手</h1>
-        <p>向AI学生讲解知识，让它帮你发现理解盲点</p>
+        <h1>📚 Feynman Learning Method AI Assistant</h1>
+        <p>Explain knowledge to AI students, let them help you discover knowledge blind spots</p>
     </header>
-
     <main class="container">
-        <!-- 用户输入区域 -->
-        <section class="input-section" aria-label="知识讲解输入区域">
+        <!-- User Input Area -->
+        <section class="input-section" aria-label="Knowledge Explanation Input Area">
             <div class="input-header">
-                <h2>💭 开始你的讲解</h2>
+                <h2>💭 Start Your Explanation</h2>
             </div>
-            <textarea 
-                id="userInput" 
-                placeholder="在这里输入你要讲解的知识点...&#10;例如：我来讲解一下什么是递归算法..."
-                rows="15"
-                aria-label="知识点讲解输入框"
-            ></textarea>
+            <textarea id="userInput"
+                placeholder="Enter the knowledge points you want to explain here...&#10;For example: I want to explain what a recursive algorithm is..."
+                rows="15" aria-label="Knowledge Point Explanation Input Box"></textarea>
             <div class="input-controls">
-                <button id="sendBtn" class="send-btn" aria-label="发送讲解内容">
-                    ✨ 发送讲解
+                <button id="sendBtn" class="send-btn" aria-label="Send explanation content">
+                    ✨ Send Explanation Content
                 </button>
-                <button id="clearBtn" class="clear-btn" aria-label="清空输入内容">
-                    🗑️ 清空
+                <button id="clearBtn" class="clear-btn" aria-label="Clear input">
+                    🗑️ Clear
                 </button>
             </div>
         </section>
 
-        <!-- AI批注区域 -->
-        <section class="ai-section" aria-label="AI学生反馈区域">
+        <!-- AI annotation area -->
+        <section class="ai-section" aria-label="AI Student Feedback Area">
             <div class="ai-header">
-                <h2>🤖 AI学生的疑问</h2>
-                <div class="ai-status" id="aiStatus" aria-live="polite">等待中...</div>
+                <h2>🤖 AI students' questions</h2>
+                <div class="ai-status" id="aiStatus" aria-live="polite">waiting...</div>
             </div>
-            <div class="ai-comments" id="aiComments" aria-live="polite" aria-label="AI学生的问题和反馈">
+            <div class="ai-comments" id="aiComments" aria-live="polite" aria-label="AI Student Questions and Feedback">
                 <div class="welcome-message">
-                    <p>👋 你好！我是你的AI学生。</p>
-                    <p>请开始讲解知识点，我会认真听讲并提出问题！</p>
+                    <p>👋 Hello! I am your AI student.</p>
+                    <p>Please start explaining the knowledge points. I will listen carefully and ask questions!</p>
                 </div>
             </div>
         </section>
@@ -51,4 +49,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
