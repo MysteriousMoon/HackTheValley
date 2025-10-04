@@ -17,6 +17,13 @@ class FeynmanApp {
         this.isMobile = window.innerWidth <= 767;
         this.isTablet = window.innerWidth <= 1023 && window.innerWidth > 767;
         
+        // 欢迎消息隐藏标志，避免重复操作
+        this.welcomeHidden = false;
+        
+        // 定时器和观察者引用，用于清理
+        this.zoomCheckInterval = null;
+        this.resizeObserver = null;
+        
         this.init();
     }
 
@@ -39,8 +46,9 @@ class FeynmanApp {
     hideWelcomeMessage() {
         // 隐藏欢迎消息
         const welcomeMsg = this.aiComments.querySelector('.welcome-message');
-        if (welcomeMsg) {
+        if (welcomeMsg && !this.welcomeHidden) {
             welcomeMsg.style.display = 'none';
+            this.welcomeHidden = true;
         }
     }
 
@@ -83,8 +91,8 @@ class FeynmanApp {
             }
         };
         
-        // 定期检查缩放变化
-        setInterval(checkZoom, 500);
+        // 定期检查缩放变化，保存引用以便清理
+        this.zoomCheckInterval = setInterval(checkZoom, 500);
         
         // 监听视觉视口变化 (现代浏览器)
         if (window.visualViewport) {
@@ -97,19 +105,29 @@ class FeynmanApp {
     setupContainerObserver() {
         const container = document.querySelector('.container');
         
-        const resizeObserver = new ResizeObserver(entries => {
+        if (!container) {
+            console.warn('Container not found for ResizeObserver');
+            return;
+        }
+        
+        this.resizeObserver = new ResizeObserver(entries => {
             for (let entry of entries) {
                 const { width } = entry.contentRect;
                 this.handleContainerResize(width);
             }
         });
         
-        resizeObserver.observe(container);
+        this.resizeObserver.observe(container);
     }
 
     handleZoomChange(zoomLevel) {
         // 当缩放级别改变时，调整布局
         const container = document.querySelector('.container');
+        
+        if (!container) {
+            return;
+        }
+        
         const effectiveWidth = window.innerWidth / zoomLevel;
         
         if (effectiveWidth < 900) {
@@ -382,6 +400,12 @@ class FeynmanApp {
     createAutoSendControls() {
         // 在输入区域添加智能发送控制
         const controlsDiv = document.querySelector('.input-controls');
+        
+        if (!controlsDiv) {
+            console.warn('Input controls div not found');
+            return;
+        }
+        
         const autoSendToggle = document.createElement('div');
         autoSendToggle.className = 'auto-send-controls';
         autoSendToggle.innerHTML = `
@@ -398,10 +422,13 @@ class FeynmanApp {
         controlsDiv.insertBefore(autoSendToggle, controlsDiv.firstChild);
         
         // 绑定开关事件
-        document.getElementById('autoSendCheckbox').addEventListener('change', (e) => {
-            this.autoSendEnabled = e.target.checked;
-            this.updateAutoSendStatus();
-        });
+        const checkbox = document.getElementById('autoSendCheckbox');
+        if (checkbox) {
+            checkbox.addEventListener('change', (e) => {
+                this.autoSendEnabled = e.target.checked;
+                this.updateAutoSendStatus();
+            });
+        }
     }
 
     bindEvents() {
@@ -581,6 +608,8 @@ class FeynmanApp {
     }
 
     displaySegmentComments(comments, segmentContent) {
+        // 首次出现分析结果时隐藏欢迎提示
+        this.hideWelcomeMessage();
         // 添加分段标识
         const segmentDiv = document.createElement('div');
         segmentDiv.className = 'segment-divider';
@@ -614,6 +643,8 @@ class FeynmanApp {
     }
 
     displayFinalComments(comments) {
+        // 确保最终综合分析前也隐藏欢迎信息（兜底）
+        this.hideWelcomeMessage();
         // 添加最终分析标识
         const finalDiv = document.createElement('div');
         finalDiv.className = 'final-analysis-divider';
@@ -692,6 +723,7 @@ class FeynmanApp {
                 <p>请开始讲解知识点，我会认真听讲并提出问题！</p>
             </div>
         `;
+        this.welcomeHidden = false; // 重置欢迎消息标志
         this.resetAutoSendState();
     }
 
@@ -877,6 +909,26 @@ class FeynmanApp {
         
         if (responseInput) {
             responseInput.disabled = isLoading;
+        }
+    }
+
+    // 清理资源方法，防止内存泄漏
+    destroy() {
+        // 清理定时器
+        if (this.zoomCheckInterval) {
+            clearInterval(this.zoomCheckInterval);
+            this.zoomCheckInterval = null;
+        }
+        
+        if (this.typingTimer) {
+            clearTimeout(this.typingTimer);
+            this.typingTimer = null;
+        }
+        
+        // 清理观察者
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
         }
     }
 

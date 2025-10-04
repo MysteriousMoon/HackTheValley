@@ -250,6 +250,10 @@ header p {
 
 .ai-header {
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
 }
 
 .ai-header h2 {
@@ -257,7 +261,7 @@ header p {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     font-weight: 600;
     font-size: 1.4rem;
 }
@@ -271,12 +275,21 @@ header p {
     display: inline-block;
     font-weight: 500;
     border: 1px solid #e2e8f0;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .ai-status.thinking {
     background: linear-gradient(135deg, #fbbf24, #f59e0b);
     color: white;
     border-color: #f59e0b;
+}
+
+/* 分段实时分析状态 */
+.ai-status.segment {
+    background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+    color: #fff;
+    border-color: #0ea5e9;
 }
 
 .ai-comments {
