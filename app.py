@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai  # 替换 openai 导入
 
-GOOGLE_API_KEY = "None"  # 替换为你的 Google API key
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # 加载环境变量
 load_dotenv()
