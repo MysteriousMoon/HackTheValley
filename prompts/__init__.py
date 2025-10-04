@@ -1,0 +1,9 @@
+"""
+费曼学习助手 - 提示词模块
+集中管理所有AI提示词模板
+"""
+
+from .final_analysis_prompt import PROMPT_FINAL
+from .response_feedback_prompt import PROMPT_RESPOND
+
+__all__ = ['PROMPT_FINAL', 'PROMPT_RESPOND']
