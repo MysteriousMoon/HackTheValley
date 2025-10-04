@@ -7,10 +7,10 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
     background:
-        radial-gradient(ellipse at 25% 25%, rgba(90, 111, 204, 0.8) 0%, transparent 50%),
-        radial-gradient(ellipse at 75% 75%, rgba(32, 64, 98, 0.7) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 90%, rgba(52, 199, 180, 0.6) 0%, transparent 40%),
-        linear-gradient(135deg, #191970 0%, #4169E1 15%, #483D8B 30%, #4682B4 50%, #5F9EA0 70%, #2cb0b0 85%, #008B8B 100%);
+        radial-gradient(ellipse at 25% 25%, rgba(72, 88, 161, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 75%, rgba(43, 73, 106, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 90%, rgba(48, 128, 117, 0.6) 0%, transparent 40%),
+        linear-gradient(135deg, #24246c 0%, #216873 15%, #3f386b 30%, #356389 50%, #457a7c 70%, #1c7272 85%, #392574 100%);
     background-attachment: fixed;
     min-height: 100vh;
     color: #2c3e50;
@@ -30,7 +30,7 @@ header {
 }
 
 header h1 {
-    background: linear-gradient(135deg, #191970 0%, #483D8B 15%, #4169E1 30%, #4682B4 50%, #5F9EA0 70%, #2cb0b0 85%, #008B8B 100%);
+    background: #191970;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -85,7 +85,7 @@ header p {
 }
 
 .input-header h2 {
-    background: linear-gradient(135deg, #483D8B 0%, #4169E1 50%, #4682B4 100%);
+    background: #49498a;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -185,7 +185,7 @@ header p {
 
 .toggle-label {
     font-weight: 500;
-    color: #1e293b;
+    color: #30415c;
     font-size: 14px;
 }
 
@@ -199,17 +199,17 @@ header p {
 }
 
 .auto-send-status.ready {
-    color: #059669;
+    color: #045b3f;
     background: rgba(16, 185, 129, 0.1);
 }
 
 .auto-send-status.typing {
-    color: #0891b2;
+    color: #065c72;
     background: rgba(6, 182, 212, 0.1);
 }
 
 .auto-send-status.pending {
-    color: #d97706;
+    color: #6c3b03;
     background: rgba(245, 158, 11, 0.1);
 }
 
@@ -219,7 +219,7 @@ header p {
 }
 
 .send-btn {
-    background: linear-gradient(135deg, #483D8B 0%, #385ac0 35%, #4682B4 75%, #5F9EA0 100%);
+    background: #50598d;
     color: white;
     border: none;
     padding: clamp(10px, 1.2vh, 12px) clamp(18px, 2vw, 24px);
@@ -285,7 +285,7 @@ header p {
 }
 
 .ai-header h2 {
-    background: linear-gradient(135deg, #4682B4 0%, #5F9EA0 50%, #008B8B 100%);
+    background: #49498a;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -309,9 +309,9 @@ header p {
 }
 
 .ai-status.thinking {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    background: linear-gradient(135deg, #dead32, #c2ba4b);
     color: white;
-    border-color: #f59e0b;
+    border-color: #8b5b09;
 }
 
 .ai-comments {
@@ -336,12 +336,12 @@ header p {
 }
 
 .ai-comments::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #638263;
     border-radius: 3px;
 }
 
 .ai-comments::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    background: #638263;
 }
 
 .welcome-message {
@@ -363,7 +363,7 @@ header p {
 
 .ai-comment {
     background: rgba(255, 255, 255, 0.9);
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #0a2290;
     padding: clamp(14px, 2vh, 20px);
     margin-bottom: clamp(12px, 1.5vh, 18px);
     border-radius: 0 16px 16px 0;
@@ -371,28 +371,28 @@ header p {
 }
 
 .ai-comment.question {
-    border-left-color: #fbbf24;
+    border-left-color: #795a0a;
     background: linear-gradient(135deg, rgba(254, 243, 199, 0.8), rgba(255, 255, 255, 0.9));
 }
 
 .ai-comment.concern {
-    border-left-color: #ef4444;
+    border-left-color: #6c0909;
     background: linear-gradient(135deg, rgba(254, 226, 226, 0.8), rgba(255, 255, 255, 0.9));
 }
 
 .ai-comment.clarification {
-    border-left-color: #8b5cf6;
+    border-left-color: #310794;
     background: linear-gradient(135deg, rgba(237, 233, 254, 0.8), rgba(255, 255, 255, 0.9));
 }
 
 .ai-comment.praise {
-    border-left-color: #10b981;
+    border-left-color: #076b4a;
     background: linear-gradient(135deg, rgba(209, 250, 229, 0.8), rgba(255, 255, 255, 0.9));
 }
 
 .ai-comment strong {
     display: block;
-    margin-bottom: clamp(6px, 1vh, 10px);
+    margin-bottom: 8px;
     font-weight: 600;
     color: #1e293b;
 }
@@ -407,8 +407,8 @@ header p {
 /* analysis style */
 .segment-divider,
 .final-analysis-divider {
-    margin: 24px 0 16px 0;
-    padding: 10px 0;
+    margin: 20px 0 12px 0;
+    padding: 8px 0;
     border-bottom: 2px solid #e2e8f0;
 }
 
@@ -428,38 +428,38 @@ header p {
 }
 
 .final-analysis-divider {
-    border-bottom-color: #667eea;
+    border-bottom-color: #356389;
 }
 
 .final-info {
-    color: #667eea;
+    color: #356389;
     font-weight: 600;
 }
 
 .segment-comment {
-    border-left-color: #06b6d4;
+    border-left-color: #638263;
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(255, 255, 255, 0.9));
     margin-left: 12px;
     border-radius: 0 12px 12px 0;
 }
 
 .final-comment {
-    border-left-color: #8b5cf6;
+    border-left-color: #638263;
     background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.9));
     box-shadow: 0 3px 12px rgba(139, 92, 246, 0.1);
 }
 
 /* 回复区域样式 */
 .response-section {
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 16px;
+    padding-top: 16px;
     border-top: 2px dashed #e2e8f0;
 }
 
 .response-prompt {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     font-weight: 500;
     color: #1e293b;
 }
@@ -478,7 +478,7 @@ header p {
     width: 100%;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
-    padding: 16px 20px;
+    padding: 12px 16px;
     font-size: 14px;
     line-height: 1.5;
     resize: vertical;
@@ -501,12 +501,12 @@ header p {
 
 .response-controls {
     display: flex;
-    gap: 12px;
-    margin-top: 16px;
+    gap: 8px;
+    margin-top: 12px;
 }
 
 .response-btn {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #638263;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -545,17 +545,17 @@ header p {
 
 /* Feedback area style */
 .response-feedback {
-    margin-top: 20px;
-    padding: 20px;
+    margin-top: 16px;
+    padding: 16px;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
-    border: 2px solid #10b981;
+    border: 2px solid #469e80;
     border-radius: 12px;
 }
 
 .feedback-header {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     font-weight: 600;
     color: #065f46;
 }
@@ -577,8 +577,8 @@ header p {
 
 /* Skip state style */
 .response-skipped {
-    margin-top: 20px;
-    padding: 16px 20px;
+    margin-top: 16px;
+    padding: 12px 16px;
     background: rgba(156, 163, 175, 0.1);
     border: 2px dashed #d1d5db;
     border-radius: 12px;

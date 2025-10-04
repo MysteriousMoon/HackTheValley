@@ -138,7 +138,7 @@ class FeynmanApp {
             this.optimizeForDesktop();
         }
         
-        console.log(`缩放级别: ${zoomLevel.toFixed(2)}, 有效宽度: ${effectiveWidth.toFixed(0)}px`);
+        console.log(`Zoom level: ${zoomLevel.toFixed(2)}, Effective width: ${effectiveWidth.toFixed(0)}px`);
     }
 
     handleVisualViewportChange() {
@@ -332,13 +332,13 @@ class FeynmanApp {
         const containerRect = container.getBoundingClientRect();
         
         debugInfo.innerHTML = `
-            <strong>响应式调试信息:</strong><br>
-            视口: ${window.innerWidth} × ${window.innerHeight}<br>
-            容器: ${containerRect.width.toFixed(0)} × ${containerRect.height.toFixed(0)}<br>
-            缩放: ${window.devicePixelRatio.toFixed(2)}<br>
-            布局: ${container.style.flexDirection || 'row'}<br>
-            设备: ${this.isMobile ? 'Mobile' : this.isTablet ? 'Tablet' : 'Desktop'}<br>
-            触摸: ${('ontouchstart' in window) ? 'Yes' : 'No'}
+            <strong>Responsive Debug Info:</strong><br>
+            Viewport: ${window.innerWidth} × ${window.innerHeight}<br>
+            Container: ${containerRect.width.toFixed(0)} × ${containerRect.height.toFixed(0)}<br>
+            Zoom: ${window.devicePixelRatio.toFixed(2)}<br>
+            Layout: ${container.style.flexDirection || 'row'}<br>
+            Device: ${this.isMobile ? 'Mobile' : this.isTablet ? 'Tablet' : 'Desktop'}<br>
+            Touch: ${('ontouchstart' in window) ? 'Yes' : 'No'}
         `;
     }
 
@@ -412,10 +412,10 @@ class FeynmanApp {
             <label class="auto-send-toggle">
                 <input type="checkbox" id="autoSendCheckbox" ${this.autoSendEnabled ? 'checked' : ''}>
                 <span class="toggle-slider"></span>
-                <span class="toggle-label">🤖 智能跟进</span>
+                <span class="toggle-label">🤖 Smart Follow-up</span>
             </label>
             <div class="auto-send-status" id="autoSendStatus">
-                准备就绪
+                Ready
             </div>
         `;
         
@@ -497,7 +497,7 @@ class FeynmanApp {
         if (this.isProcessing) return;
         
         this.isProcessing = true;
-        this.updateAutoSendStatus('分析中...');
+        this.updateAutoSendStatus('Analyzing...');
         
         try {
             // 使用统一的分析接口，传入isSegment标识
@@ -516,7 +516,7 @@ class FeynmanApp {
             
         } catch (error) {
             console.error('Auto send error:', error);
-            this.updateAutoSendStatus('分析失败');
+            this.updateAutoSendStatus('Analysis failed');
         } finally {
             this.isProcessing = false;
             setTimeout(() => this.updateAutoSendStatus(), 2000);
@@ -526,7 +526,7 @@ class FeynmanApp {
     async handleManualSend() {
         const content = this.userInput.value.trim();
         if (!content) {
-            this.showNotification('请输入要讲解的内容', 'warning');
+            this.showNotification('Please enter content to explain', 'warning');
             return;
         }
         
@@ -540,7 +540,7 @@ class FeynmanApp {
             this.resetAutoSendState();
         } catch (error) {
             console.error('Error:', error);
-            this.displayError('AI批注失败，请重试');
+            this.displayError('AI annotation failed, please try again');
         } finally {
             this.setLoading(false);
         }
@@ -575,7 +575,7 @@ class FeynmanApp {
         segmentDiv.innerHTML = `
             <div class="segment-info">
                 <span class="segment-icon">📝</span>
-                <span class="segment-text">实时分析 - ${new Date().toLocaleTimeString()}</span>
+                <span class="segment-text">Real-time Analysis - ${new Date().toLocaleTimeString()}</span>
             </div>
         `;
         this.aiComments.appendChild(segmentDiv);
@@ -610,7 +610,7 @@ class FeynmanApp {
         finalDiv.innerHTML = `
             <div class="final-info">
                 <span class="final-icon">🎯</span>
-                <span class="final-text">综合分析</span>
+                <span class="final-text">Comprehensive Analysis</span>
             </div>
         `;
         this.aiComments.appendChild(finalDiv);
@@ -646,7 +646,7 @@ class FeynmanApp {
         }
         
         if (!this.autoSendEnabled) {
-            statusElement.textContent = '已禁用';
+            statusElement.textContent = 'Disabled';
             statusElement.className = 'auto-send-status disabled';
             return;
         }
@@ -656,13 +656,13 @@ class FeynmanApp {
         const length = this.getContentLength(newContent);
         
         if (length === 0) {
-            statusElement.textContent = '准备就绪';
+            statusElement.textContent = 'Ready';
             statusElement.className = 'auto-send-status ready';
         } else if (length < 50) {
-            statusElement.textContent = `输入中 (${length}/50)`;
+            statusElement.textContent = `Typing (${length}/50)`;
             statusElement.className = 'auto-send-status typing';
         } else {
-            statusElement.textContent = `满足字数 (${length}/50) - 以句号结尾时分析`;
+            statusElement.textContent = `Sufficient length (${length}/50) - Analysis on period`;
             statusElement.className = 'auto-send-status pending';
         }
     }
@@ -678,8 +678,8 @@ class FeynmanApp {
         this.userInput.value = '';
         this.aiComments.innerHTML = `
             <div class="welcome-message" style="display: block;">
-                <p>👋 你好！我是你的AI学生。</p>
-                <p>请开始讲解知识点，我会认真听讲并提出问题！</p>
+                <p>👋 Hello! I'm your AI student.</p>
+                <p>Please start explaining the topic, I will listen carefully and ask questions!</p>
             </div>
         `;
         this.welcomeHidden = false; // 重置欢迎消息标志
@@ -716,20 +716,20 @@ class FeynmanApp {
         responseDiv.innerHTML = `
             <div class="response-prompt">
                 <span class="response-icon">💬</span>
-                <span class="response-text">请针对这个问题继续讲解：</span>
+                <span class="response-text">Please continue explaining this question:</span>
             </div>
             <textarea 
                 class="response-input" 
-                placeholder="在这里回答AI学生的问题..."
+                placeholder="Answer the AI student's question here..."
                 rows="3"
                 data-comment-id="${commentId}"
             ></textarea>
             <div class="response-controls">
                 <button class="response-btn" data-comment-id="${commentId}">
-                    ✨ 回答问题
+                    ✨ Answer Question
                 </button>
                 <button class="skip-btn" data-comment-id="${commentId}">
-                    ⏭️ 跳过
+                    ⏭️ Skip
                 </button>
             </div>
         `;
@@ -750,7 +750,7 @@ class FeynmanApp {
             const response = responseInput.value.trim();
             
             if (!response) {
-                this.showNotification('请输入回答内容', 'warning');
+                this.showNotification('Please enter an answer', 'warning');
                 return;
             }
             
@@ -783,7 +783,7 @@ class FeynmanApp {
             
         } catch (error) {
             console.error('Error handling response:', error);
-            this.showNotification('回答处理失败，请重试', 'error');
+            this.showNotification('Answer processing failed, please try again', 'error');
         } finally {
             this.setResponseLoading(responseDiv, false);
         }
@@ -814,7 +814,7 @@ class FeynmanApp {
         feedbackDiv.innerHTML = `
             <div class="feedback-header">
                 <span class="feedback-icon">🤖</span>
-                <span class="feedback-title">AI学生回复：</span>
+                <span class="feedback-title">AI Student Reply:</span>
             </div>
             <p class="feedback-content">${feedback.content}</p>
         `;
@@ -834,7 +834,7 @@ class FeynmanApp {
         skipDiv.className = 'response-skipped';
         skipDiv.innerHTML = `
             <span class="skip-icon">⏭️</span>
-            <span class="skip-text">已跳过此问题</span>
+            <span class="skip-text">Question skipped</span>
         `;
         
         const controlsDiv = responseDiv.querySelector('.response-controls');
@@ -847,7 +847,7 @@ class FeynmanApp {
         
         if (responseBtn) {
             responseBtn.disabled = isLoading;
-            responseBtn.textContent = isLoading ? '思考中...' : '✨ 回答问题';
+            responseBtn.textContent = isLoading ? 'Thinking...' : '✨ Answer Question';
         }
         
         if (responseInput) {
@@ -907,7 +907,7 @@ class FeynmanApp {
     displayError(message) {
         this.aiComments.innerHTML = `
             <div class="ai-comment concern">
-                <strong>⚠️ 错误</strong>
+                <strong>⚠️ Error</strong>
                 <p>${message}</p>
             </div>
         `;
@@ -917,10 +917,10 @@ class FeynmanApp {
         this.sendBtn.disabled = isLoading;
         
         if (isLoading) {
-            this.aiStatus.textContent = '思考中...';
+            this.aiStatus.textContent = 'Thinking...';
             this.aiStatus.className = 'ai-status thinking';
         } else {
-            this.aiStatus.textContent = '等待中...';
+            this.aiStatus.textContent = 'Waiting...';
             this.aiStatus.className = 'ai-status';
         }
     }
