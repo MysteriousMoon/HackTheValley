@@ -491,6 +491,20 @@ def clean_json_response(text):
     
     return text.strip()
 
+def print_ai_response(response_text, response_type='analysis'):
+    """
+    打印AI响应内容
+    
+    Args:
+        response_text: AI响应的原始文本
+        response_type: 响应类型 ('analysis' 或 'feedback')
+    """
+    print(f'\n{"="*60}')
+    print(f'AI响应 [{response_type.upper()}] - {__import__("datetime").datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+    print(f'{"="*60}')
+    print(response_text)
+    print(f'{"="*60}\n')
+
 def analyze_with_ai(content, analysis_type='final'):
     """
     统一的 AI 分析函数
@@ -512,6 +526,9 @@ def analyze_with_ai(content, analysis_type='final'):
         # 生成回复
         response = model.generate_content(prompt)
         ai_response = response.text
+        
+        # 打印AI原始响应
+        print_ai_response(ai_response, 'analysis')
         
         # 清理响应文本，移除markdown代码块标记
         cleaned_response = clean_json_response(ai_response)
@@ -552,8 +569,12 @@ def respond_with_ai(user_response):
         
         # 生成回复
         response = model.generate_content(prompt)
+        ai_feedback = response.text.strip()
         
-        return response.text.strip()
+        # 打印AI反馈响应
+        print_ai_response(ai_feedback, 'feedback')
+        
+        return ai_feedback
             
     except Exception as e:
         print(f'Google Gemini API调用失败: {e}')
