@@ -13,16 +13,15 @@ body {
         linear-gradient(135deg, #191970 0%, #4169E1 15%, #483D8B 30%, #4682B4 50%, #5F9EA0 70%, #2cb0b0 85%, #008B8B 100%);
     background-attachment: fixed;
     min-height: 100vh;
-    background-attachment: fixed;
-    min-height: 100vh;
     color: #2c3e50;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 header {
     background: rgba(231, 236, 241, 0.98);
     backdrop-filter: blur(20px);
-    padding: 24px 20px;
+    padding: clamp(16px, 2vh, 24px) clamp(16px, 2vw, 24px);
     text-align: center;
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -35,40 +34,54 @@ header h1 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 10px;
+    margin-bottom: clamp(8px, 1vh, 12px);
     font-family: Georgia;
     font-weight: 700;
-    font-size: 2.2rem;
+    font-size: clamp(1.3rem, 3vw, 2rem);
     letter-spacing: -0.5px;
 }
 
 header p {
     color: #64748b;
-    font-size: 16px;
+    font-size: clamp(14px, 2vw, 16px);
     font-weight: 400;
 }
 
 .container {
-    display: flex;
-    max-width: 1400px;
-    margin: 32px auto 60px auto;
-    gap: 32px;
-    padding: 0 32px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: clamp(12px, 1.5vw, 20px);
     min-height: auto;
+    height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    display: flex;
+    gap: clamp(16px, 2vw, 24px);
+    margin-top: 0;
+    align-items: flex-start;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
 }
 
 /* User Input Area */
 .input-section {
     flex: 1;
-    min-width: 400px;
+    min-width: 0;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 32px;
+    border-radius: 16px;
+    padding: clamp(16px, 2vh, 24px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .input-header h2 {
@@ -77,23 +90,23 @@ header p {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-family: Georgia;
-    margin-bottom: 20px;
+    margin-bottom: clamp(12px, 1.5vh, 18px);
     font-weight: 600;
-    font-size: 1.4rem;
+    font-size: clamp(1rem, 2vw, 1.3rem);
 }
 
 #userInput {
     border: 2px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 24px;
-    font-size: 17px;
-    line-height: 1.7;
-    resize: vertical;
+    border-radius: 12px;
+    padding: clamp(12px, 1.5vh, 18px);
+    font-size: clamp(14px, 1vw, 15px);
+    line-height: 1.6;
+    resize: none;
     outline: none;
     background: rgba(248, 250, 252, 0.8);
     font-family: inherit;
-    min-height: 250px;
-    height: 350px;
+    flex: 1;
+    min-height: 0;
     width: 100%;
     box-sizing: border-box;
 }
@@ -112,8 +125,9 @@ header p {
 .input-controls {
     display: flex;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: clamp(12px, 1.5vh, 18px);
     flex-wrap: wrap;
+    flex-shrink: 0;
 }
 
 /* Intelligent Sending Control */
@@ -208,12 +222,13 @@ header p {
     background: linear-gradient(135deg, #483D8B 0%, #385ac0 35%, #4682B4 75%, #5F9EA0 100%);
     color: white;
     border: none;
-    padding: 16px 32px;
-    border-radius: 12px;
+    padding: clamp(10px, 1.2vh, 12px) clamp(18px, 2vw, 24px);
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: clamp(13px, 1vw, 15px);
     font-weight: 600;
     flex: 1;
+    min-width: 120px;
     box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
@@ -231,10 +246,11 @@ header p {
     background: rgba(248, 250, 252, 0.9);
     color: #64748b;
     border: 2px solid #e2e8f0;
-    padding: 16px 24px;
-    border-radius: 12px;
+    padding: clamp(10px, 1.2vh, 12px) clamp(16px, 1.8vw, 20px);
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 500;
+    font-size: clamp(13px, 1vw, 15px);
 }
 
 .clear-btn:hover {
@@ -245,23 +261,27 @@ header p {
 /* AI annotation area */
 .ai-section {
     flex: 1;
-    min-width: 400px;
+    min-width: 0;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 32px;
+    border-radius: 16px;
+    padding: clamp(16px, 2vh, 24px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .ai-header {
-    margin-bottom: 20px;
+    margin-bottom: clamp(12px, 1.5vh, 18px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
 .ai-header h2 {
@@ -272,13 +292,13 @@ header p {
     font-family: Georgia;
     margin-bottom: 0;
     font-weight: 600;
-    font-size: 1.4rem;
+    font-size: clamp(1rem, 2vw, 1.3rem);
 }
 
 .ai-status {
-    font-size: 14px;
+    font-size: clamp(12px, 1vw, 14px);
     color: #64748b;
-    padding: 8px 16px;
+    padding: clamp(6px, 0.8vh, 8px) clamp(12px, 1.5vw, 16px);
     background: rgba(248, 250, 252, 0.8);
     border-radius: 20px;
     display: inline-block;
@@ -297,11 +317,11 @@ header p {
 .ai-comments {
     overflow-y: auto;
     border: 2px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 24px;
+    border-radius: 12px;
+    padding: clamp(12px, 1.5vh, 18px);
     background: rgba(248, 250, 252, 0.5);
-    min-height: 250px;
-    max-height: 500px;
+    flex: 1;
+    min-height: 0;
     width: 100%;
     box-sizing: border-box;
 }
@@ -344,8 +364,8 @@ header p {
 .ai-comment {
     background: rgba(255, 255, 255, 0.9);
     border-left: 4px solid #667eea;
-    padding: 20px;
-    margin-bottom: 16px;
+    padding: clamp(14px, 2vh, 20px);
+    margin-bottom: clamp(12px, 1.5vh, 18px);
     border-radius: 0 16px 16px 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -372,7 +392,7 @@ header p {
 
 .ai-comment strong {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: clamp(6px, 1vh, 10px);
     font-weight: 600;
     color: #1e293b;
 }
@@ -381,13 +401,14 @@ header p {
     color: #475569;
     line-height: 1.6;
     margin: 0;
+    font-size: clamp(13px, 1vw, 15px);
 }
 
 /* analysis style */
 .segment-divider,
 .final-analysis-divider {
-    margin: 20px 0 12px 0;
-    padding: 8px 0;
+    margin: 24px 0 16px 0;
+    padding: 10px 0;
     border-bottom: 2px solid #e2e8f0;
 }
 
@@ -430,15 +451,15 @@ header p {
 
 /* 回复区域样式 */
 .response-section {
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 2px dashed #e2e8f0;
 }
 
 .response-prompt {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     font-weight: 500;
     color: #1e293b;
 }
@@ -457,7 +478,7 @@ header p {
     width: 100%;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
-    padding: 12px 16px;
+    padding: 16px 20px;
     font-size: 14px;
     line-height: 1.5;
     resize: vertical;
@@ -480,8 +501,8 @@ header p {
 
 .response-controls {
     display: flex;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 12px;
+    margin-top: 16px;
 }
 
 .response-btn {
@@ -524,8 +545,8 @@ header p {
 
 /* Feedback area style */
 .response-feedback {
-    margin-top: 16px;
-    padding: 16px;
+    margin-top: 20px;
+    padding: 20px;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
     border: 2px solid #10b981;
     border-radius: 12px;
@@ -534,7 +555,7 @@ header p {
 .feedback-header {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     font-weight: 600;
     color: #065f46;
 }
@@ -556,8 +577,8 @@ header p {
 
 /* Skip state style */
 .response-skipped {
-    margin-top: 16px;
-    padding: 12px 16px;
+    margin-top: 20px;
+    padding: 16px 20px;
     background: rgba(156, 163, 175, 0.1);
     border: 2px dashed #d1d5db;
     border-radius: 12px;
@@ -602,4 +623,61 @@ header p {
 
 .notification-success {
     background: linear-gradient(135deg, #10b981, #059669);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .content-wrapper {
+        flex-direction: column;
+        height: auto;
+        min-height: 0;
+        gap: clamp(12px, 2vh, 20px);
+        overflow: visible;
+    }
+    
+    .input-section,
+    .ai-section {
+        min-width: 0;
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+    }
+    
+    #userInput {
+        min-height: 150px;
+        height: 200px;
+    }
+    
+    .ai-comments {
+        min-height: 200px;
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .input-section,
+    .ai-section {
+        padding: clamp(14px, 2vh, 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .input-controls {
+        flex-direction: column;
+    }
+    
+    .send-btn {
+        width: 100%;
+    }
+    
+    .ai-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
 }
