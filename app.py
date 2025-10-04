@@ -3,328 +3,65 @@ from flask_cors import CORS
 import json
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai  # 替换 openai 导入
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+import google.generativeai as genai
 
 # 加载环境变量
 load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 app = Flask(__name__)
 CORS(app)  # 允许跨域请求
 
 # 配置 Google Gemini
-genai.configure(api_key=GOOGLE_API_KEY)  # 使用 Google API key
+genai.configure(api_key=GOOGLE_API_KEY)
 
-# 提供静态文件服务
-@app.route('/')
-def index():
-    return send_from_directory('.', 'index.html')
+# ==================== 提示词模板 ====================
 
-@app.route('/<path:filename>')
-def static_files(filename):
-    return send_from_directory('.', filename)
+PROMPT_ANALYZE = """
+# 角色：AI 文本分析与格式化助手
 
-# AI分析接口
-@app.route('/api/analyze', methods=['POST'])
-def analyze_content():
-    try:
-        # 获取请求数据
-        data = request.get_json()
-        content = data.get('content', '').strip()
-        
-        if not content:
-            return jsonify({'error': '内容不能为空'}), 400
-        
-        # 调用AI分析函数
-        analysis = analyze_with_ai(content)
-        
-        return jsonify({
-            'success': True,
-            'comments': analysis
-        })
-        
-    except Exception as e:
-        print(f'AI分析错误: {e}')
-        return jsonify({
-            'error': 'AI分析失败',
-            'message': str(e)
-        }), 500
+你是一个专门用于分析文本并以严格的 JSON 格式生成结构化反馈的 AI 助教。你的核心任务是扮演一名学生，对给定的内容进行批判性思考，并严格按照要求格式化你的问题和批注。
 
-# 分段分析接口
-@app.route('/api/analyze-segment', methods=['POST'])
-def analyze_segment():
-    try:
-        data = request.get_json()
-        segment = data.get('segment', '').strip()
-        context = data.get('context', [])
-        
-        if not segment:
-            return jsonify({'error': '分段内容不能为空'}), 400
-        
-        # 调用分段分析函数
-        analysis = analyze_segment_with_ai(segment, context)
-        
-        return jsonify({
-            'success': True,
-            'comments': analysis
-        })
-        
-    except Exception as e:
-        print(f'分段分析错误: {e}')
-        return jsonify({
-            'error': '分段分析失败',
-            'message': str(e)
-        }), 500
+## 核心任务
+接收一段由 `{content}` 占位符包裹的文本，并根据以下指示生成一个 JSON 数组。
 
-# 最终分析接口
-@app.route('/api/analyze-final', methods=['POST'])
-def analyze_final():
-    try:
-        data = request.get_json()
-        full_content = data.get('fullContent', '').strip()
-        segments = data.get('segments', [])
-        
-        if not full_content:
-            return jsonify({'error': '内容不能为空'}), 400
-        
-        # 调用最终分析函数
-        analysis = analyze_final_with_ai(full_content, segments)
-        
-        return jsonify({
-            'success': True,
-            'comments': analysis
-        })
-        
-    except Exception as e:
-        print(f'最终分析错误: {e}')
-        return jsonify({
-            'error': '最终分析失败',
-            'message': str(e)
-        }), 500
+## 角色扮演
+以一名积极、严谨的学生的视角，对 `{content}` 中的内容提出 2-4 个有价值的问题或批注。
 
-# AI回应接口
-@app.route('/api/respond', methods=['POST'])
-def respond_to_question():
-    try:
-        # 获取请求数据
-        data = request.get_json()
-        comment_id = data.get('commentId')
-        response = data.get('response', '').strip()
-        
-        if not response:
-            return jsonify({'error': '回答内容不能为空'}), 400
-        
-        # 调用AI回应函数
-        feedback = respond_with_ai(response)
-        
-        return jsonify({
-            'success': True,
-            'content': feedback
-        })
-        
-    except Exception as e:
-        print(f'AI回应错误: {e}')
-        return jsonify({
-            'error': 'AI回应失败',
-            'message': str(e)
-        }), 500
+## 分析维度 (你的问题应围绕以下几点)
+1.  **概念模糊点**：哪些术语或概念没有被清晰定义？
+2.  **逻辑跳跃点**：论述过程中是否存在不连贯或缺少前提的跳跃？
+3.  **实例缺失处**：哪个抽象的观点如果配上一个具体例子会更容易理解？
+4.  **深度不足处**：哪些部分可以进一步展开，提供更多细节或背景？
 
-def analyze_with_ai(content):
-    """
-    使用 Google Gemini Pro 分析用户讲解内容
-    """
-    prompt = f"""
-你是一个认真学习的学生。请分析老师的这段讲解：
+## 输出格式要求
+**必须** 严格遵守以下 JSON 格式。**禁止**在 JSON 代码块之外添加任何解释、注释或文字。你的整个回答**只能是**一个 JSON 数组。
 
-"{content}"
-
-请以学生的角度提出2-4个问题或批注，帮助发现讲解中的：
-1. 不清楚的概念
-2. 逻辑跳跃
-3. 缺少例子的地方
-4. 需要更详细解释的部分
-
-对于重要的疑问，标记为需要老师回应(needsResponse: true)。
-
-以JSON格式返回，格式如下：
+```json
 [
-  {{
+  {
     "id": "q1",
     "type": "question",
-    "title": "概念疑问", 
-    "content": "具体的问题内容",
+    "title": "关于[某个概念]的疑问",
+    "content": "这里是具体的、有深度的提问内容，详细说明为什么这个概念不清楚。",
     "needsResponse": true
-  }},
-  {{
+  },
+  {
     "id": "q2",
-    "type": "clarification", 
-    "title": "需要澄清",
-    "content": "需要澄清的内容",
+    "type": "clarification",
+    "title": "请求补充[某个部分]的例子",
+    "content": "老师在讲解...时，我觉得如果能有一个实际的例子会帮助我们更好地理解。",
     "needsResponse": false
-  }}
+  }
 ]
-
-type可以是: question(疑问), concern(担忧), clarification(澄清), praise(好评)
-needsResponse: 如果是重要问题需要老师详细回答则为true，一般性评论为false
 """
 
-    try:
-        # 初始化 Gemini Pro 模型
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
-        # 生成回复
-        response = model.generate_content(prompt)
-        
-        # 获取文本响应
-        ai_response = response.text
-        
-        # 尝试解析JSON响应
-        try:
-            return json.loads(ai_response)
-        except json.JSONDecodeError:
-            # 如果AI返回格式不正确，提供默认响应
-            return [
-                {
-                    "id": "q1",
-                    "type": "question",
-                    "title": "理解确认",
-                    "content": "我对你刚才的讲解有些疑问，能否再详细解释一下？",
-                    "needsResponse": True
-                }
-            ]
-            
-    except Exception as e:
-        print(f'Google Gemini API调用失败: {e}')
-        # 返回默认批注
-        return [
-            {
-                "id": "error",
-                "type": "concern",
-                "title": "系统提示",
-                "content": "AI分析服务暂时不可用，请稍后重试。",
-                "needsResponse": False
-            }
-        ]
-
-def respond_with_ai(user_response):
-    """
-    使用 Google Gemini Pro 对用户的回答进行反馈
-    """
-    prompt = f"""
-作为一个学生，我刚刚听了老师对我问题的回答：
-
-"{user_response}"
-
-请给出简短的反馈，表达：
-1. 对解答的理解程度
-2. 是否还有疑问
-3. 感谢老师的耐心解释
-
-用简洁、自然的语言回复，就像真实学生会说的话。
-"""
-
-    try:
-        # 初始化 Gemini 2.5 Flash 模型
-        model = genai.GenerativeModel('gemini-2.5-flash')
-
-        # 生成回复
-        response = model.generate_content(prompt)
-        
-        # 获取文本响应
-        return response.text.strip()
-            
-    except Exception as e:
-        print(f'Google Gemini API调用失败: {e}')
-        # 返回默认反馈
-        return "谢谢老师的解释！我明白了很多。"
-
-def analyze_segment_with_ai(segment, context):
-    """
-    分段分析用户讲解内容
-    """
-    context_summary = ""
-    if context:
-        context_summary = f"之前已经讲解了{len(context)}个部分，主要涉及的话题有："
-        for i, seg in enumerate(context[-3:]):  # 只保留最近3段的上下文
-            context_summary += f"\n{i+1}. {seg['content'][:50]}..."
-    
-    prompt = f"""
-你是一个认真学习的学生。老师正在分段讲解知识点。
-
-{context_summary}
-
-现在老师讲解了这一段：
-"{segment}"
-
-作为学生，请对这一段内容提出1-2个简短的实时反馈，重点关注：
-1. 这段内容是否清楚易懂
-2. 是否需要举例说明
-3. 与前面内容的逻辑连接
-4. 简短的鼓励或疑问
-
-以JSON格式返回，格式如下：
-[
-  {{
-    "id": "seg1",
-    "type": "question",
-    "title": "实时疑问",
-    "content": "具体的问题内容",
-    "needsResponse": false
-  }}
-]
-
-注意：
-- 分段分析主要是实时反馈，needsResponse通常为false
-- 评论要简短，符合实时跟进的特点
-- type可以是: question(疑问), clarification(澄清), praise(好评), concern(担忧)
-"""
-
-    try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
-        ai_response = response.text
-        
-        try:
-            return json.loads(ai_response)
-        except json.JSONDecodeError:
-            return [
-                {
-                    "id": "seg_default",
-                    "type": "praise",
-                    "title": "继续讲解",
-                    "content": "这部分讲得不错，请继续！",
-                    "needsResponse": False
-                }
-            ]
-            
-    except Exception as e:
-        print(f'分段分析API调用失败: {e}')
-        return [
-            {
-                "id": "seg_error",
-                "type": "concern",
-                "title": "系统提示",
-                "content": "实时分析暂时不可用，继续讲解即可。",
-                "needsResponse": False
-            }
-        ]
-
-def analyze_final_with_ai(full_content, segments):
-    """
-    最终综合分析
-    """
-    segment_summary = ""
-    if segments:
-        segment_summary = f"在讲解过程中，我已经对{len(segments)}个部分进行了实时反馈。"
-    
-    prompt = f"""
+PROMPT_FINAL = """
 你是一个认真学习的学生。老师刚刚完成了一次完整的知识讲解。
 
-{segment_summary}
-
 完整的讲解内容是：
-"{full_content}"
+"{content}"
 
 现在请作为学生，对整个讲解进行综合性的深度分析，提出2-4个重要问题，重点关注：
 1. 整体逻辑结构是否完整
@@ -357,35 +94,189 @@ def analyze_final_with_ai(full_content, segments):
 - type可以是: question(疑问), concern(担忧), clarification(澄清), praise(好评)
 """
 
+PROMPT_RESPOND = """
+作为一个学生，我刚刚听了老师对我问题的回答：
+
+"{response}"
+
+请按照以下结构给出反馈，让回复更加真实和有教育意义：
+
+1. 首先用一句话概括老师的解答要点（表明你理解了核心内容）
+2. 真诚地感谢老师的耐心讲解
+3. 如果还有不太明白的地方，具体指出哪个点需要进一步澄清
+
+回复格式参考：
+"好的，我明白了，老师您的意思是[用一句话概括老师的解答]。谢谢老师这么耐心跟我解释，不过我还是有点不太明白[具体哪个点不太明白]。"
+
+注意：
+- 如果完全理解了，可以省略第3部分，表达感谢和收获即可
+- 如果还有疑问，要具体说明是哪个概念、哪个步骤或哪个逻辑关系不清楚
+- 语言要自然、礼貌，符合学生的口吻
+- 保持简洁，一般2-3句话即可
+"""
+
+# ==================== 路由 ====================
+
+# 提供静态文件服务
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:filename>')
+def static_files(filename):
+    return send_from_directory('.', filename)
+
+# 统一的AI分析接口
+@app.route('/api/analyze', methods=['POST'])
+def analyze_content():
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        # 获取请求数据
+        data = request.get_json()
+        content = data.get('content', '').strip()
+        is_final = data.get('isFinal', False)
+        
+        if not content:
+            return jsonify({'error': '内容不能为空'}), 400
+        
+        # 根据是否为最终分析选择分析类型
+        analysis_type = 'final' if is_final else 'analyze'
+        
+        # 调用统一的分析函数
+        analysis = analyze_with_ai(content, analysis_type)
+        
+        return jsonify({
+            'success': True,
+            'comments': analysis
+        })
+        
+    except Exception as e:
+        print(f'AI分析错误: {e}')
+        return jsonify({
+            'error': 'AI分析失败',
+            'message': str(e)
+        }), 500
+
+# AI回应接口
+@app.route('/api/respond', methods=['POST'])
+def respond_to_question():
+    try:
+        # 获取请求数据
+        data = request.get_json()
+        comment_id = data.get('commentId')
+        response = data.get('response', '').strip()
+        
+        if not response:
+            return jsonify({'error': '回答内容不能为空'}), 400
+        
+        # 调用AI回应函数
+        feedback = respond_with_ai(response)
+        
+        return jsonify({
+            'success': True,
+            'content': feedback
+        })
+        
+    except Exception as e:
+        print(f'AI回应错误: {e}')
+        return jsonify({
+            'error': 'AI回应失败',
+            'message': str(e)
+        }), 500
+
+# ==================== AI 函数 ====================
+
+def clean_json_response(text):
+    """
+    清理AI响应，移除markdown代码块标记
+    
+    Args:
+        text: AI返回的原始文本
+    
+    Returns:
+        str: 清理后的JSON字符串
+    """
+    text = text.strip()
+    
+    # 移除markdown代码块标记
+    if text.startswith('```json'):
+        text = text[7:]  # 移除开头的 ```json
+    elif text.startswith('```'):
+        text = text[3:]  # 移除开头的 ```
+    
+    if text.endswith('```'):
+        text = text[:-3]  # 移除结尾的 ```
+    
+    return text.strip()
+
+def analyze_with_ai(content, analysis_type='analyze'):
+    """
+    统一的 AI 分析函数
+    
+    Args:
+        content: 用户讲解的内容
+        analysis_type: 分析类型 ('analyze' 或 'final')
+    
+    Returns:
+        list: AI 生成的评论列表
+    """
+    # 选择对应的提示词模板
+    prompt_templates = {
+        'analyze': PROMPT_ANALYZE,
+        'final': PROMPT_FINAL
+    }
+    
+    prompt_template = prompt_templates.get(analysis_type, PROMPT_ANALYZE)
+    prompt = prompt_template.format(content=content)
+    
+    try:
+        # 初始化 Gemini 模型
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # 生成回复
         response = model.generate_content(prompt)
         ai_response = response.text
         
+        # 清理响应文本，移除markdown代码块标记
+        cleaned_response = clean_json_response(ai_response)
+        
+        # 尝试解析JSON响应
         try:
-            return json.loads(ai_response)
-        except json.JSONDecodeError:
-            return [
-                {
-                    "id": "final_default",
-                    "type": "question",
-                    "title": "整体理解确认",
-                    "content": "总的来说讲解很好，能否总结一下核心要点？",
-                    "needsResponse": True
-                }
-            ]
+            return json.loads(cleaned_response)
+        except json.JSONDecodeError as e:
+            # 如果AI返回格式不正确，抛出错误
+            print(f'AI返回的JSON格式不正确: {ai_response}')
+            raise ValueError(f'AI返回的响应不是有效的JSON格式: {str(e)}')
             
     except Exception as e:
-        print(f'最终分析API调用失败: {e}')
-        return [
-            {
-                "id": "final_error",
-                "type": "praise",
-                "title": "讲解完成",
-                "content": "感谢您的详细讲解！",
-                "needsResponse": False
-            }
-        ]
+        print(f'Google Gemini API调用失败: {e}')
+        raise
+
+def respond_with_ai(user_response):
+    """
+    使用 Google Gemini 对用户的回答进行反馈
+    
+    Args:
+        user_response: 用户的回答内容
+    
+    Returns:
+        str: AI 的反馈文本
+    """
+    prompt = PROMPT_RESPOND.format(response=user_response)
+    
+    try:
+        # 初始化 Gemini 模型
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # 生成回复
+        response = model.generate_content(prompt)
+        
+        return response.text.strip()
+            
+    except Exception as e:
+        print(f'Google Gemini API调用失败: {e}')
+        raise
+
+# ==================== 启动服务 ====================
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 10001))

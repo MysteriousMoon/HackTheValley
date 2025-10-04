@@ -474,30 +474,16 @@ class FeynmanApp {
         const shouldSend = this.shouldTriggerAutoSend(newContent, currentContent);
         
         if (shouldSend) {
-            this.handleAutoSend(newContent);
+            this.handleAutoSend(currentContent); // 发送全部内容
         }
     }
 
     shouldTriggerAutoSend(newContent, fullContent) {
-        // 多种触发条件
-        const triggers = {
-            // 句子数量（以句号、问号、感叹号结尾）
-            sentenceCount: (newContent.match(/[。！？!?\.]/g) || []).length >= 3,
-            
-            // 字符数量（中文按字符，英文按词汇）
-            characterCount: this.getContentLength(newContent) >= 200,
-            
-            // 段落结束（连续两个换行）
-            paragraphEnd: /\n\s*\n/.test(newContent),
-            
-            // 概念结束标识词
-            conceptEnd: /((总结|总的来说|综上所述|因此|所以|这样|这就是|简单来说|换句话说)[\s，,。！？!?])|((例如|比如|举例说明).*?[。！？!?])/g.test(newContent),
-            
-            // 列表或步骤结束
-            listEnd: /([0-9一二三四五六七八九十]+[、\.]\s*.*?[。！？!?].*?){2,}/g.test(newContent)
-        };
+        // 触发条件：50个字以上且以句号（中文或英文）结尾
+        const contentLength = this.getContentLength(newContent);
+        const endsWithPeriod = /[。\.]$/.test(newContent.trim());
         
-        return Object.values(triggers).some(condition => condition);
+        return contentLength >= 50 && endsWithPeriod;
     }
 
     getContentLength(text) {
@@ -507,23 +493,23 @@ class FeynmanApp {
         return chineseChars + englishWords;
     }
 
-    async handleAutoSend(segmentContent) {
+    async handleAutoSend(fullContent) {
         if (this.isProcessing) return;
         
         this.isProcessing = true;
         this.updateAutoSendStatus('分析中...');
         
         try {
-            // 发送片段内容进行分析
-            const response = await this.sendSegmentToAI(segmentContent);
+            // 使用统一的分析接口，传入isSegment标识
+            const response = await this.sendToAI(fullContent, true);
             
             // 显示AI的实时反馈
-            this.displaySegmentComments(response.comments, segmentContent);
+            this.displaySegmentComments(response.comments, fullContent);
             
             // 更新已发送长度
             this.lastSentLength = this.userInput.value.trim().length;
             this.sentSegments.push({
-                content: segmentContent,
+                content: fullContent,
                 timestamp: Date.now(),
                 comments: response.comments
             });
@@ -543,21 +529,12 @@ class FeynmanApp {
             this.showNotification('请输入要讲解的内容', 'warning');
             return;
         }
-
-        // 获取未发送的内容
-        const unsentContent = content.substring(this.lastSentLength);
         
         this.setLoading(true);
         
         try {
-            let response;
-            if (this.sentSegments.length > 0 && unsentContent) {
-                // 如果有分段历史，发送最后一段 + 完整总结
-                response = await this.sendFinalAnalysis(content, this.sentSegments);
-            } else {
-                // 普通完整发送
-                response = await this.sendToAI(content);
-            }
+            // 使用统一的分析接口，传入isFinal标识
+            const response = await this.sendToAI(content, false, true);
             
             this.displayFinalComments(response.comments);
             this.resetAutoSendState();
@@ -569,34 +546,16 @@ class FeynmanApp {
         }
     }
 
-    async sendSegmentToAI(segmentContent) {
-        const response = await fetch('/api/analyze-segment', {
+    async sendToAI(content, isSegment = false, isFinal = false) {
+        const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                segment: segmentContent,
-                context: this.sentSegments
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        return await response.json();
-    }
-
-    async sendFinalAnalysis(fullContent, segments) {
-        const response = await fetch('/api/analyze-final', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                fullContent,
-                segments 
+                content,
+                isSegment,  // 是否为分段分析
+                isFinal     // 是否为最终分析
             })
         });
 
@@ -699,11 +658,11 @@ class FeynmanApp {
         if (length === 0) {
             statusElement.textContent = '准备就绪';
             statusElement.className = 'auto-send-status ready';
-        } else if (length < 100) {
-            statusElement.textContent = `输入中 (${length}/200)`;
+        } else if (length < 50) {
+            statusElement.textContent = `输入中 (${length}/50)`;
             statusElement.className = 'auto-send-status typing';
         } else {
-            statusElement.textContent = `即将分析 (${length}/200)`;
+            statusElement.textContent = `满足字数 (${length}/50) - 以句号结尾时分析`;
             statusElement.className = 'auto-send-status pending';
         }
     }
@@ -725,22 +684,6 @@ class FeynmanApp {
         `;
         this.welcomeHidden = false; // 重置欢迎消息标志
         this.resetAutoSendState();
-    }
-
-    async sendToAI(content) {
-        const response = await fetch('/api/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ content })
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        return await response.json();
     }
 
     displayAIComments(comments) {
