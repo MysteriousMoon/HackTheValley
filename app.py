@@ -18,45 +18,6 @@ genai.configure(api_key=GOOGLE_API_KEY)
 
 # ==================== 提示词模板 ====================
 
-PROMPT_ANALYZE = """
-# 角色：AI 文本分析与格式化助手
-
-你是一个专门用于分析文本并以严格的 JSON 格式生成结构化反馈的 AI 助教。你的核心任务是扮演一名学生，对给定的内容进行批判性思考，并严格按照要求格式化你的问题和批注。
-
-## 核心任务
-接收一段由 `{content}` 占位符包裹的文本，并根据以下指示生成一个 JSON 数组。
-
-## 角色扮演
-以一名积极、严谨的学生的视角，对 `{content}` 中的内容提出 2-4 个有价值的问题或批注。
-
-## 分析维度 (你的问题应围绕以下几点)
-1.  **概念模糊点**：哪些术语或概念没有被清晰定义？
-2.  **逻辑跳跃点**：论述过程中是否存在不连贯或缺少前提的跳跃？
-3.  **实例缺失处**：哪个抽象的观点如果配上一个具体例子会更容易理解？
-4.  **深度不足处**：哪些部分可以进一步展开，提供更多细节或背景？
-
-## 输出格式要求
-**必须** 严格遵守以下 JSON 格式。**禁止**在 JSON 代码块之外添加任何解释、注释或文字。你的整个回答**只能是**一个 JSON 数组。
-
-```json
-[
-  {
-    "id": "q1",
-    "type": "question",
-    "title": "关于[某个概念]的疑问",
-    "content": "这里是具体的、有深度的提问内容，详细说明为什么这个概念不清楚。",
-    "needsResponse": true
-  },
-  {
-    "id": "q2",
-    "type": "clarification",
-    "title": "请求补充[某个部分]的例子",
-    "content": "老师在讲解...时，我觉得如果能有一个实际的例子会帮助我们更好地理解。",
-    "needsResponse": false
-  }
-]
-"""
-
 PROMPT_FINAL = """
 你是一个认真学习的学生。老师刚刚完成了一次完整的知识讲解。
 
@@ -133,13 +94,15 @@ def analyze_content():
         # 获取请求数据
         data = request.get_json()
         content = data.get('content', '').strip()
+        is_segment = data.get('isSegment', False)
         is_final = data.get('isFinal', False)
         
         if not content:
             return jsonify({'error': '内容不能为空'}), 400
         
-        # 根据是否为最终分析选择分析类型
-        analysis_type = 'final' if is_final else 'analyze'
+        # 智能跟进和手动发送都使用 'final' 类型（使用 PROMPT_FINAL）
+        # 因为 PROMPT_FINAL 的 JSON 格式更稳定可靠
+        analysis_type = 'final'
         
         # 调用统一的分析函数
         analysis = analyze_with_ai(content, analysis_type)
@@ -208,25 +171,19 @@ def clean_json_response(text):
     
     return text.strip()
 
-def analyze_with_ai(content, analysis_type='analyze'):
+def analyze_with_ai(content, analysis_type='final'):
     """
     统一的 AI 分析函数
     
     Args:
         content: 用户讲解的内容
-        analysis_type: 分析类型 ('analyze' 或 'final')
+        analysis_type: 分析类型（目前统一使用 'final'）
     
     Returns:
         list: AI 生成的评论列表
     """
-    # 选择对应的提示词模板
-    prompt_templates = {
-        'analyze': PROMPT_ANALYZE,
-        'final': PROMPT_FINAL
-    }
-    
-    prompt_template = prompt_templates.get(analysis_type, PROMPT_ANALYZE)
-    prompt = prompt_template.format(content=content)
+    # 使用 PROMPT_FINAL 模板
+    prompt = PROMPT_FINAL.format(content=content)
     
     try:
         # 初始化 Gemini 模型
