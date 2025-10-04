@@ -74,16 +74,19 @@ def respond_to_question():
         data = request.get_json()
         comment_id = data.get('commentId')
         response = data.get('response', '').strip()
+        original_question = data.get('originalQuestion', '')  # 获取原始问题
         
         if not response:
             return jsonify({'error': '回答内容不能为空'}), 400
         
-        # 调用AI回应函数
-        feedback = respond_with_ai(response)
+        # 调用AI回应函数，返回结构化数据
+        feedback_data = respond_with_ai(response)
         
         return jsonify({
             'success': True,
-            'content': feedback
+            'understood': feedback_data.get('understood', True),
+            'feedback': feedback_data.get('feedback', ''),
+            'followUpQuestion': feedback_data.get('followUpQuestion', None)
         })
         
     except Exception as e:
@@ -209,7 +212,7 @@ def respond_with_ai(user_response):
         user_response: 用户的回答内容
     
     Returns:
-        str: AI 的反馈文本
+        dict: AI 的反馈对象，包含 understood, feedback, followUpQuestion
     """
     prompt = PROMPT_RESPOND.format(response=user_response)
     
@@ -219,12 +222,37 @@ def respond_with_ai(user_response):
         
         # 生成回复
         response = model.generate_content(prompt)
-        ai_feedback = response.text.strip()
+        ai_response = response.text.strip()
         
         # 打印AI反馈响应
-        print_ai_response(ai_feedback, 'feedback')
+        print_ai_response(ai_response, 'feedback')
         
-        return ai_feedback
+        # 清理和解析JSON响应
+        cleaned_response = clean_json_response(ai_response)
+        
+        try:
+            feedback_data = json.loads(cleaned_response)
+            
+            # 验证必需字段
+            if 'understood' not in feedback_data or 'feedback' not in feedback_data:
+                raise ValueError('AI返回的反馈缺少必需字段')
+            
+            return feedback_data
+            
+        except json.JSONDecodeError as e:
+            # 如果JSON解析失败，返回文本格式的兜底方案
+            print(f'===== AI反馈JSON解析失败 =====')
+            print(f'原始响应: {ai_response}')
+            print(f'清理后: {cleaned_response}')
+            print(f'错误: {str(e)}')
+            print(f'===== 使用兜底方案 =====')
+            
+            # 兜底方案：假设完全理解，返回文本内容
+            return {
+                'understood': True,
+                'feedback': ai_response,
+                'followUpQuestion': None
+            }
             
     except Exception as e:
         print(f'Google Gemini API调用失败: {e}')

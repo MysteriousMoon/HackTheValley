@@ -89,7 +89,7 @@ PROMPT_FINAL = """
 
 ```
 [
-  {
+  {{
     "id": "concept_photosynthesis",
     "type": "question",
     "title": "光合作用的定义",
@@ -97,8 +97,8 @@ PROMPT_FINAL = """
     "needsResponse": true,
     "reasoning": "概念清晰度检测失败:核心概念'光合作用'未被定义",
     "detectionLayer": "第一层-概念清晰度"
-  },
-  {
+  }},
+  {{
     "id": "logic_growth",
     "type": "question",
     "title": "生长的因果关系",
@@ -106,7 +106,7 @@ PROMPT_FINAL = """
     "needsResponse": true,
     "reasoning": "逻辑连贯性检测失败:从'光合作用'到'生长'存在逻辑跳跃",
     "detectionLayer": "第二层-逻辑连贯性"
-  }
+  }}
 ]
 ```
 
@@ -150,7 +150,7 @@ PROMPT_FINAL = """
 
 ```
 [
-  {
+  {{
     "id": "唯一标识符",
     "type": "问题类型",
     "title": "简短标题(5-10字)",
@@ -158,7 +158,7 @@ PROMPT_FINAL = """
     "needsResponse": true或false,
     "reasoning": "基于哪层检测或什么思考提出这个问题",
     "detectionLayer": "第X层-检测名称"
-  }
+  }}
 ]
 ```
 

@@ -186,11 +186,6 @@ class FeynmanApp {
             if (this.userInput) {
                 this.userInput.style.height = '200px';
             }
-            
-            // 调整AI批注区域高度
-            if (this.aiComments) {
-                this.aiComments.style.maxHeight = '300px';
-            }
         } else {
             container.style.flexDirection = 'row';
             container.style.gap = '24px';
@@ -204,11 +199,7 @@ class FeynmanApp {
             
             // 恢复默认高度
             if (this.userInput) {
-                this.userInput.style.height = '350px';
-            }
-            
-            if (this.aiComments) {
-                this.aiComments.style.maxHeight = '450px';
+                this.userInput.style.height = '';
             }
         }
     }
@@ -235,7 +226,6 @@ class FeynmanApp {
             // 横屏模式
             if (this.isMobile) {
                 this.userInput.style.height = '120px';
-                this.aiComments.style.maxHeight = '150px';
             }
         } else {
             // 竖屏模式
@@ -276,7 +266,6 @@ class FeynmanApp {
         if (keyboardVisible) {
             // 键盘弹出时的优化
             this.userInput.style.height = '100px';
-            this.aiComments.style.maxHeight = '120px';
             
             // 滚动到输入框
             setTimeout(() => {
@@ -345,7 +334,6 @@ class FeynmanApp {
     optimizeForMobile() {
         // 移动端特定优化
         this.userInput.style.height = '180px';
-        this.aiComments.style.maxHeight = '220px';
         
         // 防止iOS缩放
         this.userInput.style.fontSize = '16px';
@@ -357,14 +345,12 @@ class FeynmanApp {
     optimizeForTablet() {
         // 平板端优化
         this.userInput.style.height = '280px';
-        this.aiComments.style.maxHeight = '320px';
         this.userInput.style.fontSize = '16px';
     }
 
     optimizeForDesktop() {
-        // 桌面端优化
-        this.userInput.style.height = '350px';
-        this.aiComments.style.maxHeight = '450px';
+        // 桌面端优化 - 让CSS控制高度
+        this.userInput.style.height = '';
         this.userInput.style.fontSize = '16px';
     }
 
@@ -393,7 +379,6 @@ class FeynmanApp {
         
         if (this.isMobile && containerHeight > availableHeight) {
             this.userInput.style.height = Math.max(120, availableHeight * 0.3) + 'px';
-            this.aiComments.style.maxHeight = Math.max(150, availableHeight * 0.4) + 'px';
         }
     }
 
@@ -585,10 +570,15 @@ class FeynmanApp {
             setTimeout(() => {
                 const commentDiv = document.createElement('div');
                 commentDiv.className = `ai-comment ${comment.type} segment-comment`;
-                commentDiv.innerHTML = `
+                
+                // 创建内容容器
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'comment-content';
+                contentDiv.innerHTML = `
                     <strong>${this.getCommentIcon(comment.type)} ${comment.title}</strong>
                     <p>${comment.content}</p>
                 `;
+                commentDiv.appendChild(contentDiv);
                 
                 if (comment.needsResponse) {
                     const responseSection = this.createResponseSection(comment.id || `seg_${Date.now()}_${index}`);
@@ -620,10 +610,15 @@ class FeynmanApp {
             setTimeout(() => {
                 const commentDiv = document.createElement('div');
                 commentDiv.className = `ai-comment ${comment.type} final-comment`;
-                commentDiv.innerHTML = `
+                
+                // 创建内容容器
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'comment-content';
+                contentDiv.innerHTML = `
                     <strong>${this.getCommentIcon(comment.type)} ${comment.title}</strong>
                     <p>${comment.content}</p>
                 `;
+                commentDiv.appendChild(contentDiv);
                 
                 if (comment.needsResponse) {
                     const responseSection = this.createResponseSection(comment.id || `final_${Date.now()}_${index}`);
@@ -693,10 +688,15 @@ class FeynmanApp {
             setTimeout(() => {
                 const commentDiv = document.createElement('div');
                 commentDiv.className = `ai-comment ${comment.type}`;
-                commentDiv.innerHTML = `
+                
+                // 创建内容容器
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'comment-content';
+                contentDiv.innerHTML = `
                     <strong>${this.getCommentIcon(comment.type)} ${comment.title}</strong>
                     <p>${comment.content}</p>
                 `;
+                commentDiv.appendChild(contentDiv);
                 
                 // 如果AI需要用户回应，添加回复输入框
                 if (comment.needsResponse) {
@@ -775,11 +775,21 @@ class FeynmanApp {
             // 禁用控件
             this.setResponseLoading(responseDiv, true);
             
-            // 发送回答到AI
-            const aiReply = await this.sendResponse(commentId, response);
+            // 获取原始问题内容（从父元素中找到）
+            const commentDiv = responseDiv.closest('.ai-comment');
+            const originalQuestion = commentDiv ? commentDiv.querySelector('p').textContent : '';
             
-            // 显示AI的后续反馈
-            this.displayResponseFeedback(responseDiv, aiReply);
+            // 发送回答到AI
+            const aiReply = await this.sendResponse(commentId, response, originalQuestion);
+            
+            // 根据AI的理解状态显示不同的反馈
+            if (aiReply.understood) {
+                // AI完全理解了，显示满意的反馈，不再追问
+                this.displayFinalFeedback(responseDiv, aiReply.feedback);
+            } else {
+                // AI还有困惑，显示反馈并继续追问（传入commentDiv以便在外面创建追问）
+                this.displayFollowUpFeedback(responseDiv, commentDiv, aiReply.feedback, aiReply.followUpQuestion, commentId);
+            }
             
         } catch (error) {
             console.error('Error handling response:', error);
@@ -789,7 +799,7 @@ class FeynmanApp {
         }
     }
 
-    async sendResponse(commentId, response) {
+    async sendResponse(commentId, response, originalQuestion = '') {
         const apiResponse = await fetch('/api/respond', {
             method: 'POST',
             headers: {
@@ -797,7 +807,8 @@ class FeynmanApp {
             },
             body: JSON.stringify({ 
                 commentId,
-                response 
+                response,
+                originalQuestion
             })
         });
 
@@ -827,6 +838,104 @@ class FeynmanApp {
         setTimeout(() => {
             feedbackDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);
+    }
+
+    displayFinalFeedback(responseDiv, feedbackText) {
+        // AI完全理解了，显示满意的反馈
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'response-feedback understood';
+        feedbackDiv.innerHTML = `
+            <div class="feedback-header">
+                <span class="feedback-icon">✅</span>
+                <span class="feedback-title">AI Student's Understanding:</span>
+            </div>
+            <p class="feedback-content">${feedbackText}</p>
+            <div class="understood-badge">
+                <span class="badge-icon">🎉</span>
+                <span class="badge-text">Fully understood! This question is resolved.</span>
+            </div>
+        `;
+        
+        // 替换输入区域和控件
+        const inputArea = responseDiv.querySelector('.response-input');
+        const controlsDiv = responseDiv.querySelector('.response-controls');
+        
+        if (inputArea) inputArea.style.display = 'none';
+        if (controlsDiv) {
+            responseDiv.replaceChild(feedbackDiv, controlsDiv);
+        } else {
+            responseDiv.appendChild(feedbackDiv);
+        }
+        
+        // 滚动到反馈位置
+        setTimeout(() => {
+            feedbackDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+
+    displayFollowUpFeedback(responseDiv, currentCommentDiv, feedbackText, followUpQuestion, commentId) {
+        // AI还有困惑，先在当前位置显示反馈
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'response-feedback follow-up';
+        feedbackDiv.innerHTML = `
+            <div class="feedback-header">
+                <span class="feedback-icon">🤔</span>
+                <span class="feedback-title">AI Student's Feedback:</span>
+            </div>
+            <p class="feedback-content">${feedbackText}</p>
+            <div class="understood-badge partial">
+                <span class="badge-icon">💭</span>
+                <span class="badge-text">Partially understood, but still have questions</span>
+            </div>
+        `;
+        
+        // 替换原来的输入区域和控件
+        const inputArea = responseDiv.querySelector('.response-input');
+        const controlsDiv = responseDiv.querySelector('.response-controls');
+        
+        if (inputArea) inputArea.style.display = 'none';
+        if (controlsDiv) {
+            responseDiv.replaceChild(feedbackDiv, controlsDiv);
+        } else {
+            responseDiv.appendChild(feedbackDiv);
+        }
+        
+        // 创建追问部分（要追加到原始问题评论的末尾，与其他追问平行）
+        const followUpSection = document.createElement('div');
+        followUpSection.className = 'follow-up-nested-section';
+        
+        // 直接创建分隔线
+        const divider = document.createElement('div');
+        divider.className = 'follow-up-divider';
+        followUpSection.appendChild(divider);
+        
+        // 创建追问问题框
+        const questionBox = document.createElement('div');
+        questionBox.className = 'follow-up-question-box';
+        questionBox.innerHTML = `
+            <div class="follow-up-header">
+                <span class="follow-up-icon">❓</span>
+                <span class="follow-up-title">AI Student's Follow-up Question:</span>
+            </div>
+            <p class="follow-up-question">${followUpQuestion}</p>
+        `;
+        followUpSection.appendChild(questionBox);
+        
+        // 创建新的回应区域
+        const newCommentId = `${commentId}_followup_${Date.now()}`;
+        const newResponseSection = this.createResponseSection(newCommentId);
+        followUpSection.appendChild(newResponseSection);
+        
+        // 找到最顶层的评论div（原始问题），将新追问追加到它的末尾
+        // 这样所有追问都是原始问题的直接子元素，保持平行
+        if (currentCommentDiv) {
+            currentCommentDiv.appendChild(followUpSection);
+        } else {
+            // 兜底：如果找不到父评论，就追加到当前responseDiv
+            responseDiv.appendChild(followUpSection);
+        }
+        
+        // 不自动滚动，让用户保持在当前位置查看反馈
     }
 
     skipResponse(commentId, responseDiv) {

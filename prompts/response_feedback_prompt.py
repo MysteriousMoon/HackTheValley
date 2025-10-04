@@ -145,7 +145,54 @@ PROMPT_RESPOND = """
 
 ---
 
-# 输出要求
+# 输出格式要求
 
-请基于老师的回答`{response}`，运用费曼三步反馈法，生成你的学生反馈。
+你必须以JSON格式输出反馈结果，以便程序处理：
+
+```json
+{{
+  "understood": true或false,
+  "feedback": "你的反馈文本内容",
+  "followUpQuestion": "如果还有困惑，这里是具体的追问问题（如果understood为true则为null）"
+}}
+```
+
+**字段说明：**
+- `understood`: 布尔值
+  - true: 完全理解了老师的回答，没有进一步疑问
+  - false: 还有部分困惑，需要继续追问
+  
+- `feedback`: 字符串，你的反馈内容
+  - 如果完全理解：表达理解和感谢
+  - 如果部分困惑：先肯定已理解的部分，然后指出困惑点
+  
+- `followUpQuestion`: 字符串或null
+  - 如果understood为true：设为null
+  - 如果understood为false：提供具体、明确的追问问题
+
+**输出示例：**
+
+**完全理解的情况：**
+```json
+{{
+  "understood": true,
+  "feedback": "好的，我明白了！就是说植物通过吸收光，把空气里的二氧化碳和水变成了自己需要的糖分，同时释放出氧气。这个过程真的很神奇，谢谢老师的讲解！",
+  "followUpQuestion": null
+}}
+```
+
+**部分困惑的情况：**
+```json
+{{
+  "understood": false,
+  "feedback": "好的，我理解了递归就是函数自己调用自己这个概念，谢谢老师。不过我还是有点不太明白终止条件这个部分。",
+  "followUpQuestion": "终止条件具体是怎么设置的？如果没有终止条件会发生什么？能举个具体的递归例子吗？"
+}}
+```
+
+---
+
+# 现在开始你的工作
+
+请基于老师的回答`{response}`，运用费曼三步反馈法，生成结构化的学生反馈。务必严格按照JSON格式输出。
 """

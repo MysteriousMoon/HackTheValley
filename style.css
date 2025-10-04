@@ -309,13 +309,22 @@ header p {
 }
 
 .ai-status.thinking {
-    background: linear-gradient(135deg, #dead32, #c2ba4b);
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
     color: white;
-    border-color: #8b5b09;
+    border-color: #7c3aed;
 }
 
+/* ==================== 配色方案 ==================== */
+/* 
+主色调：蓝紫色系
+强调色：橙色（用于追问）
+中性色：灰色系
+*/
+
+/* ==================== AI评论区域 ==================== */
 .ai-comments {
     overflow-y: auto;
+    overflow-x: hidden;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
     padding: clamp(12px, 1.5vh, 18px);
@@ -324,8 +333,12 @@ header p {
     min-height: 0;
     width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
+/* 滚动条样式 */
 .ai-comments::-webkit-scrollbar {
     width: 6px;
 }
@@ -336,58 +349,57 @@ header p {
 }
 
 .ai-comments::-webkit-scrollbar-thumb {
-    background: #638263;
+    background: #94a3b8;
     border-radius: 3px;
 }
 
 .ai-comments::-webkit-scrollbar-thumb:hover {
-    background: #638263;
+    background: #64748b;
 }
 
-.welcome-message {
-    display: none;
-    /* Hide welcome message */
-    text-align: center;
-    color: #64748b;
-    font-style: italic;
-    padding: 40px 20px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
-    border: 2px dashed #cbd5e1;
-}
-
-.welcome-message p {
-    margin-bottom: 8px;
-    font-size: 16px;
-}
-
+/* ==================== AI评论卡片 - 统一样式 ==================== */
 .ai-comment {
-    background: rgba(255, 255, 255, 0.9);
-    border-left: 4px solid #0a2290;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(139, 92, 246, 0.05));
+    border-left: 4px solid #667eea;
     padding: clamp(14px, 2vh, 20px);
-    margin-bottom: clamp(12px, 1.5vh, 18px);
-    border-radius: 0 16px 16px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    transition: box-shadow 0.3s ease;
 }
 
+.ai-comment:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+}
+
+.comment-content {
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* 评论类型统一配色 - 蓝紫色系 */
 .ai-comment.question {
-    border-left-color: #795a0a;
-    background: linear-gradient(135deg, rgba(254, 243, 199, 0.8), rgba(255, 255, 255, 0.9));
+    border-left-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(139, 92, 246, 0.06));
 }
 
 .ai-comment.concern {
-    border-left-color: #6c0909;
-    background: linear-gradient(135deg, rgba(254, 226, 226, 0.8), rgba(255, 255, 255, 0.9));
+    border-left-color: #a78bfa;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.06));
 }
 
 .ai-comment.clarification {
-    border-left-color: #310794;
-    background: linear-gradient(135deg, rgba(237, 233, 254, 0.8), rgba(255, 255, 255, 0.9));
+    border-left-color: #8b5cf6;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(102, 126, 234, 0.06));
 }
 
 .ai-comment.praise {
-    border-left-color: #076b4a;
-    background: linear-gradient(135deg, rgba(209, 250, 229, 0.8), rgba(255, 255, 255, 0.9));
+    border-left-color: #06b6d4;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(8, 145, 178, 0.06));
 }
 
 .ai-comment strong {
@@ -395,13 +407,32 @@ header p {
     margin-bottom: 8px;
     font-weight: 600;
     color: #1e293b;
+    font-size: clamp(14px, 1.1vw, 16px);
 }
 
 .ai-comment p {
     color: #475569;
-    line-height: 1.6;
+    line-height: 1.7;
     margin: 0;
     font-size: clamp(13px, 1vw, 15px);
+}
+
+/* 欢迎消息 */
+.welcome-message {
+    display: none;
+    text-align: center;
+    color: #64748b;
+    font-style: italic;
+    padding: 40px 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+}
+
+.welcome-message p {
+    margin-bottom: 8px;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 /* analysis style */
@@ -437,23 +468,24 @@ header p {
 }
 
 .segment-comment {
-    border-left-color: #638263;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(255, 255, 255, 0.9));
+    border-left-color: #06b6d4;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(99, 102, 241, 0.08));
     margin-left: 12px;
     border-radius: 0 12px 12px 0;
 }
 
 .final-comment {
-    border-left-color: #638263;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.9));
-    box-shadow: 0 3px 12px rgba(139, 92, 246, 0.1);
+    border-left-color: #8b5cf6;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(167, 139, 250, 0.1));
+    box-shadow: 0 3px 12px rgba(139, 92, 246, 0.2);
 }
 
 /* 回复区域样式 */
 .response-section {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 2px dashed #e2e8f0;
+    border-top: 2px dashed #1c3c66;
+    width: 100%;
 }
 
 .response-prompt {
@@ -476,7 +508,8 @@ header p {
 
 .response-input {
     width: 100%;
-    border: 2px solid #e2e8f0;
+    box-sizing: border-box;
+    border: 2px solid #4e6787;
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 14px;
@@ -490,7 +523,6 @@ header p {
 
 .response-input:focus {
     border-color: #667eea;
-    background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -503,11 +535,12 @@ header p {
     display: flex;
     gap: 8px;
     margin-top: 12px;
+    flex-wrap: wrap;
 }
 
 .response-btn {
-    background: #638263;
-    color: white;
+    background: linear-gradient(135deg, #667eea, #8b5cf6);
+    color: rgb(60, 82, 130);
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -515,10 +548,12 @@ header p {
     font-size: 14px;
     font-weight: 500;
     flex: 1;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .response-btn:hover {
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5568d3, #7c3aed);
 }
 
 .response-btn:disabled {
@@ -543,13 +578,15 @@ header p {
     border-color: #cbd5e1;
 }
 
-/* Feedback area style */
+/* Feedback area style - 蓝紫色系 */
 .response-feedback {
     margin-top: 16px;
     padding: 16px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
-    border: 2px solid #469e80;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(139, 92, 246, 0.08));
+    border: 2px solid #8b5cf6;
     border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .feedback-header {
@@ -557,22 +594,25 @@ header p {
     align-items: center;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #065f46;
+    color: #5b21b6;
 }
 
 .feedback-icon {
     margin-right: 8px;
     font-size: 1.1em;
+    flex-shrink: 0;
 }
 
 .feedback-title {
-    color: #047857;
+    color: #6d28d9;
+    flex: 1;
 }
 
 .feedback-content {
-    color: #064e3b;
+    color: #4c1d95;
     line-height: 1.5;
     margin: 0;
+    word-wrap: break-word;
 }
 
 /* Skip state style */
@@ -679,5 +719,232 @@ header p {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
+    }
+}
+
+/* ==================== 追问反馈样式 ==================== */
+
+/* ==================== 反馈样式 - 统一配色 ==================== */
+
+/* 完全理解的反馈 - 蓝紫色系 */
+.response-feedback.understood {
+    background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+    border: 2px solid #8b5cf6;
+}
+
+.understood-badge {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.35);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.understood-badge .badge-icon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.understood-badge .badge-text {
+    font-size: 0.95em;
+    flex: 1;
+}
+
+/* 部分理解的反馈 - 蓝紫色系 */
+.response-feedback.follow-up {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    border: 2px solid #6366f1;
+}
+
+.understood-badge.partial {
+    background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+    border: 2px solid #6366f1;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.understood-badge.partial .badge-icon {
+    color: white;
+}
+
+.understood-badge.partial .badge-text {
+    color: white;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    .understood-badge,
+    .follow-up-section {
+        padding: 10px 12px;
+    }
+    
+    .follow-up-question {
+        padding: 8px 0;
+        font-size: 0.9em;
+    }
+    
+    .follow-up-header,
+    .follow-up-prompt {
+        font-size: 0.85em;
+    }
+    
+    .follow-up-nested-section {
+        padding: 12px;
+        padding-left: 16px;
+        margin-top: 16px;
+    }
+    
+    .follow-up-question-box {
+        padding: 10px 12px;
+    }
+    
+    .response-input {
+        font-size: 13px;
+        padding: 10px 14px;
+        min-height: 70px;
+    }
+    
+    .response-controls {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .understood-badge {
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+    }
+    
+    .follow-up-section {
+        padding: 12px;
+    }
+    
+    .follow-up-nested-section {
+        padding: 10px;
+        padding-left: 12px;
+        margin-top: 12px;
+    }
+    
+    .follow-up-question-box {
+        padding: 8px 10px;
+    }
+    
+    .response-input {
+        font-size: 12px;
+        padding: 8px 12px;
+        min-height: 60px;
+    }
+    
+    .response-btn,
+    .skip-btn {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+}
+
+/* ==================== 追问部分 - 统一蓝紫色系 ==================== */
+.follow-up-nested-section {
+    margin-top: 20px;
+    padding: 18px;
+    padding-left: 22px;
+    border-left: 4px solid #6366f1;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(129, 140, 248, 0.04));
+    border-radius: 0 12px 12px 0;
+    animation: slideInFromLeft 0.4s ease-out;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.follow-up-divider {
+    height: 3px;
+    background: linear-gradient(to right, #6366f1 0%, #818cf8 50%, transparent 100%);
+    margin-bottom: 18px;
+    opacity: 0.6;
+    border-radius: 2px;
+}
+
+.follow-up-question-box {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 40%, rgba(255, 255, 255, 0.9) 100%);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 18px;
+    border: 2px solid #818cf8;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
+.follow-up-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #4338ca;
+    font-weight: 700;
+    font-size: 0.96em;
+}
+
+.follow-up-icon {
+    font-size: 1.4em;
+    flex-shrink: 0;
+}
+
+.follow-up-title {
+    flex: 1;
+    color: #4f46e5;
+    letter-spacing: 0.3px;
+}
+
+.follow-up-question {
+    color: #312e81;
+    line-height: 1.8;
+    font-size: 0.96em;
+    margin: 0;
+    padding: 8px 0;
+    font-weight: 500;
+}
+
+/* 追问部分的响应区域 */
+.follow-up-nested-section .response-section {
+    background: rgba(255, 255, 255, 0.6);
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border-top: 2px dashed #c7d2fe;
+}
+
+.follow-up-nested-section .response-input {
+    border: 2px solid #818cf8;
+    background: white;
+    box-sizing: border-box;
+}
+
+.follow-up-nested-section .response-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* 确保追问部分不会溢出 */
+.follow-up-nested-section * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* 追问动画 */
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
