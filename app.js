@@ -397,7 +397,7 @@ class FeynmanApp {
             <label class="auto-send-toggle">
                 <input type="checkbox" id="autoSendCheckbox" ${this.autoSendEnabled ? 'checked' : ''}>
                 <span class="toggle-slider"></span>
-                <span class="toggle-label">🤖 Smart Follow-up</span>
+                <span class="toggle-label">Auto Send</span>
             </label>
             <div class="auto-send-status" id="autoSendStatus">
                 Ready
@@ -464,11 +464,11 @@ class FeynmanApp {
     }
 
     shouldTriggerAutoSend(newContent, fullContent) {
-        // 触发条件：50个字以上且以句号（中文或英文）结尾
+        // 触发条件：100个字以上且以句号（中文或英文）结尾
         const contentLength = this.getContentLength(newContent);
         const endsWithPeriod = /[。\.]$/.test(newContent.trim());
         
-        return contentLength >= 50 && endsWithPeriod;
+        return contentLength >= 100 && endsWithPeriod;
     }
 
     getContentLength(text) {
@@ -824,7 +824,6 @@ class FeynmanApp {
         feedbackDiv.className = 'response-feedback';
         feedbackDiv.innerHTML = `
             <div class="feedback-header">
-                <span class="feedback-icon">🤖</span>
                 <span class="feedback-title">AI Student Reply:</span>
             </div>
             <p class="feedback-content">${feedback.content}</p>

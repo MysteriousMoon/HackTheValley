@@ -584,7 +584,7 @@ header p {
     margin-top: 16px;
     padding: 16px;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(139, 92, 246, 0.08));
-    border: 2px solid #356389;
+    border: 2px solid #e2e8f0;
     border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
@@ -761,7 +761,7 @@ header p {
 
 /* 部分理解的反馈 - 蓝紫色系 */
 .response-feedback.follow-up {
-    background: #356389;
+    background: #fdfdfd;
     border: 2px solid #356389;
 }
 
@@ -874,7 +874,7 @@ header p {
 }
 
 .follow-up-question-box {
-    background: #356389;
+    background: #e2e8f0;
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 18px;
