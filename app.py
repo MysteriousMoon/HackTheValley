@@ -17,9 +17,6 @@ generation_config = {
 app = Flask(__name__)
 CORS(app)  # Allow cross-origin requests 允许跨域请求
 
-# Configure Google Gemini 配置 Google Gemini
-genai.configure(api_key=GOOGLE_API_KEY)
-
 # ==================== Routes 路由 ====================
 
 # Serve static files 提供静态文件服务
@@ -38,12 +35,13 @@ def analyze_content():
         # Get request data 获取请求数据
         data = request.get_json()
         content = data.get('content', '').strip()
+        custom_api_key = data.get('apiKey', '').strip()  # Get custom API key 获取自定义API密钥
         
         if not content:
             return jsonify({'error': '内容不能为空'}), 400
         
-        # Call unified analysis function 调用统一的分析函数
-        analysis = analyze_with_ai(content)
+        # Call unified analysis function with custom API key 使用自定义API密钥调用统一的分析函数
+        analysis = analyze_with_ai(content, custom_api_key)
         
         return jsonify({
             'success': True,
@@ -79,12 +77,13 @@ def respond_to_question():
         response = data.get('response', '').strip()
         original_question = data.get('originalQuestion', '')  # Get original question 获取原始问题
         conversation_history = data.get('conversationHistory', [])  # Get conversation history 获取对话历史
+        custom_api_key = data.get('apiKey', '').strip()  # Get custom API key 获取自定义API密钥
         
         if not response:
             return jsonify({'error': '回答内容不能为空'}), 400
         
-        # Call AI response function, pass in original question, user answer, and conversation history 调用AI回应函数，传入原始问题、用户回答和对话历史
-        feedback_data = respond_with_ai(response, original_question, conversation_history)
+        # Call AI response function with custom API key 使用自定义API密钥调用AI回应函数
+        feedback_data = respond_with_ai(response, original_question, conversation_history, custom_api_key)
         
         return jsonify({
             'success': True,
@@ -176,13 +175,32 @@ def print_ai_response(response_text, response_type='analysis'):
     print(response_text)
     print(f'{"="*60}\n')
 
-def analyze_with_ai(content):
+def get_api_key(custom_api_key=''):
+    """
+    Get API key to use: custom key if provided, otherwise default
+    获取要使用的API密钥：如果提供了自定义密钥则使用，否则使用默认密钥
+    
+    Args:
+        custom_api_key: Custom API key from user 用户提供的自定义API密钥
+    
+    Returns:
+        str: API key to use 要使用的API密钥
+    """
+    if custom_api_key:
+        print(f'Using custom API key (ending with: ...{custom_api_key[-4:]})')
+        return custom_api_key
+    else:
+        print('Using default API key from environment')
+        return GOOGLE_API_KEY
+
+def analyze_with_ai(content, custom_api_key=''):
     """
     Unified AI analysis function
     统一的 AI 分析函数
     
     Args:
         content: User's explanation content 用户讲解的内容
+        custom_api_key: Custom API key 自定义API密钥
     
     Returns:
         list: List of AI-generated comments AI 生成的评论列表
@@ -190,6 +208,12 @@ def analyze_with_ai(content):
     ai_response = None  # For error handling access 用于错误处理时访问
     
     try:
+        # Get API key to use 获取要使用的API密钥
+        api_key = get_api_key(custom_api_key)
+        
+        # Configure Gemini with the selected API key 使用选定的API密钥配置Gemini
+        genai.configure(api_key=api_key)
+        
         # Use PROMPT_FINAL template 使用 PROMPT_FINAL 模板
         prompt = PROMPT_FINAL.format(content=content)
         
@@ -231,7 +255,7 @@ def analyze_with_ai(content):
             e.ai_response = ai_response  # Attach AI response to exception 附加AI响应到异常
         raise
 
-def respond_with_ai(user_response, original_question='', conversation_history=None):
+def respond_with_ai(user_response, original_question='', conversation_history=None, custom_api_key=''):
     """
     Use Google Gemini to provide feedback on user's answer
     使用 Google Gemini 对用户的回答进行反馈
@@ -240,6 +264,7 @@ def respond_with_ai(user_response, original_question='', conversation_history=No
         user_response: User's answer content 用户的回答内容
         original_question: Original question previously asked by AI AI之前提出的原始问题
         conversation_history: List of previous Q&A exchanges 之前的问答交流列表
+        custom_api_key: Custom API key 自定义API密钥
     
     Returns:
         dict: AI feedback object, containing understood, feedback, followUpQuestion
@@ -271,6 +296,12 @@ def respond_with_ai(user_response, original_question='', conversation_history=No
         prompt = prompt + context
     
     try:
+        # Get API key to use 获取要使用的API密钥
+        api_key = get_api_key(custom_api_key)
+        
+        # Configure Gemini with the selected API key 使用选定的API密钥配置Gemini
+        genai.configure(api_key=api_key)
+        
         # Initialize Gemini model 初始化 Gemini 模型
         model = genai.GenerativeModel('gemini-2.0-flash')
         
@@ -317,7 +348,7 @@ def respond_with_ai(user_response, original_question='', conversation_history=No
             e.ai_response = ai_response  # Attach AI response to exception 附加AI响应到异常
         raise
 
-# ==================== Start Service 启动服务 =====================
+# ==================== Start Service 启动服务 ====================
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 10001))

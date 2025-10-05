@@ -6,6 +6,16 @@ class FeynmanApp {
         this.aiComments = document.getElementById('aiComments');
         this.aiStatus = document.getElementById('aiStatus');
         
+        // Settings related 设置相关
+        this.settingsBtn = document.getElementById('settingsBtn');
+        this.settingsModal = document.getElementById('settingsModal');
+        this.closeModal = document.getElementById('closeModal');
+        this.apiKeyInput = document.getElementById('apiKeyInput');
+        this.saveSettingsBtn = document.getElementById('saveSettings');
+        this.clearApiKeyBtn = document.getElementById('clearApiKey');
+        this.toggleVisibilityBtn = document.getElementById('toggleApiKeyVisibility');
+        this.customApiKey = this.loadApiKey();  // Load saved API key 加载保存的API密钥
+        
         // Smart send related states 智能发送相关状态
         this.autoSendEnabled = false;  // Default to disabled 默认关闭
         this.lastSentLength = 0;
@@ -33,10 +43,109 @@ class FeynmanApp {
 
     init() {
         this.bindEvents();
+        this.bindSettingsEvents();
         this.createAutoSendControls();
         this.setupResponsiveHandlers();
         this.optimizeForDevice();
         this.showWelcomeMessage();
+        this.updateApiKeyDisplay();
+    }
+
+    // Settings related methods 设置相关方法
+    bindSettingsEvents() {
+        // Open settings modal 打开设置模态框
+        this.settingsBtn.addEventListener('click', () => {
+            this.openSettings();
+        });
+
+        // Close settings modal 关闭设置模态框
+        this.closeModal.addEventListener('click', () => {
+            this.closeSettings();
+        });
+
+        // Click outside to close 点击外部关闭
+        this.settingsModal.addEventListener('click', (e) => {
+            if (e.target === this.settingsModal) {
+                this.closeSettings();
+            }
+        });
+
+        // Save settings 保存设置
+        this.saveSettingsBtn.addEventListener('click', () => {
+            this.saveSettings();
+        });
+
+        // Clear API key 清除API密钥
+        this.clearApiKeyBtn.addEventListener('click', () => {
+            this.clearApiKey();
+        });
+
+        // Toggle password visibility 切换密码可见性
+        this.toggleVisibilityBtn.addEventListener('click', () => {
+            this.toggleApiKeyVisibility();
+        });
+
+        // ESC to close 按ESC关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.settingsModal.style.display === 'flex') {
+                this.closeSettings();
+            }
+        });
+    }
+
+    openSettings() {
+        this.settingsModal.style.display = 'flex';
+        this.apiKeyInput.value = this.customApiKey || '';
+    }
+
+    closeSettings() {
+        this.settingsModal.style.display = 'none';
+    }
+
+    saveSettings() {
+        const apiKey = this.apiKeyInput.value.trim();
+        this.customApiKey = apiKey;
+        this.saveApiKey(apiKey);
+        this.showNotification('Settings saved! 设置已保存！', 'success');
+        this.closeSettings();
+        this.updateApiKeyDisplay();
+    }
+
+    clearApiKey() {
+        this.customApiKey = '';
+        this.apiKeyInput.value = '';
+        localStorage.removeItem('gemini_api_key');
+        this.showNotification('Custom API key cleared! 已清除自定义API密钥！', 'success');
+        this.updateApiKeyDisplay();
+    }
+
+    toggleApiKeyVisibility() {
+        const type = this.apiKeyInput.type === 'password' ? 'text' : 'password';
+        this.apiKeyInput.type = type;
+        this.toggleVisibilityBtn.textContent = type === 'password' ? '👁️' : '🙈';
+    }
+
+    saveApiKey(apiKey) {
+        if (apiKey) {
+            localStorage.setItem('gemini_api_key', apiKey);
+        } else {
+            localStorage.removeItem('gemini_api_key');
+        }
+    }
+
+    loadApiKey() {
+        return localStorage.getItem('gemini_api_key') || '';
+    }
+
+    updateApiKeyDisplay() {
+        // Update settings button to show if custom key is active 更新设置按钮以显示是否使用自定义密钥
+        if (this.customApiKey) {
+            this.settingsBtn.classList.add('active');
+            this.settingsBtn.setAttribute('title', 'Using custom API key');
+        } else {
+            this.settingsBtn.classList.remove('active');
+            this.settingsBtn.setAttribute('title', 'Settings');
+        }
     }
 
     showWelcomeMessage() {
@@ -542,7 +651,8 @@ class FeynmanApp {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                content  // Only content is required 只需要content参数
+                content,  // Only content is required 只需要content参数
+                apiKey: this.customApiKey  // Send custom API key if available 如果有自定义API密钥则发送
             })
         });
 
@@ -829,7 +939,8 @@ class FeynmanApp {
                 commentId,
                 response,
                 originalQuestion,
-                conversationHistory  // Include conversation history 包含对话历史
+                conversationHistory,  // Include conversation history 包含对话历史
+                apiKey: this.customApiKey  // Send custom API key if available 如果有自定义API密钥则发送
             })
         });
 
