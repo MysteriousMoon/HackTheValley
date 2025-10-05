@@ -1,5 +1,8 @@
 """
+Feynman Learning Assistant - Final Analysis Prompt Template
 费曼学习助手 - 最终分析提示词模板
+
+Used to analyze complete explanation content and generate structured feedback questions
 用于分析完整讲解内容并生成结构化的反馈问题
 """
 

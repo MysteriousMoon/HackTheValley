@@ -1,5 +1,8 @@
 """
+Feynman Learning Assistant - Prompt Module
 费曼学习助手 - 提示词模块
+
+Centralized management of all AI prompt templates
 集中管理所有AI提示词模板
 """
 

@@ -6,23 +6,27 @@ class FeynmanApp {
         this.aiComments = document.getElementById('aiComments');
         this.aiStatus = document.getElementById('aiStatus');
         
-        // 智能发送相关状态
+        // Smart send related states 智能发送相关状态
         this.autoSendEnabled = true;
         this.lastSentLength = 0;
         this.sentSegments = [];
         this.typingTimer = null;
         this.isProcessing = false;
         
-        // 响应式状态
+        // Responsive states 响应式状态
         this.isMobile = window.innerWidth <= 767;
         this.isTablet = window.innerWidth <= 1023 && window.innerWidth > 767;
         
-        // 欢迎消息隐藏标志，避免重复操作
+        // Welcome message hidden flag, avoid duplicate operations 欢迎消息隐藏标志，避免重复操作
         this.welcomeHidden = false;
         
-        // 定时器和观察者引用，用于清理
+        // Timer and observer references, for cleanup 定时器和观察者引用，用于清理
         this.zoomCheckInterval = null;
         this.resizeObserver = null;
+        
+        // Conversation history tracking 对话历史跟踪
+        // Key: commentId, Value: array of {question, answer} exchanges commentId为键，值为{question, answer}交换数组
+        this.conversationHistories = {};
         
         this.init();
     }
@@ -36,7 +40,7 @@ class FeynmanApp {
     }
 
     showWelcomeMessage() {
-        // 显示欢迎消息
+        // Display welcome message 显示欢迎消息
         const welcomeMsg = this.aiComments.querySelector('.welcome-message');
         if (welcomeMsg) {
             welcomeMsg.style.display = 'block';
@@ -44,7 +48,7 @@ class FeynmanApp {
     }
 
     hideWelcomeMessage() {
-        // 隐藏欢迎消息
+        // Hide welcome message 隐藏欢迎消息
         const welcomeMsg = this.aiComments.querySelector('.welcome-message');
         if (welcomeMsg && !this.welcomeHidden) {
             welcomeMsg.style.display = 'none';
@@ -53,34 +57,34 @@ class FeynmanApp {
     }
 
     setupResponsiveHandlers() {
-        // 监听屏幕尺寸变化
+        // Listen for screen size changes 监听屏幕尺寸变化
         window.addEventListener('resize', () => {
             this.handleResize();
         });
         
-        // 监听设备方向变化
+        // Listen for device orientation changes 监听设备方向变化
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
                 this.handleOrientationChange();
             }, 100);
         });
         
-        // 监听缩放变化
+        // Listen for zoom changes 监听缩放变化
         this.setupZoomDetection();
         
-        // 监听键盘弹出/收起 (移动端)
+        // Listen for keyboard show/hide (mobile) 监听键盘弹出/收起 (移动端)
         if (this.isMobile) {
             this.setupMobileKeyboardHandlers();
         }
         
-        // 监听容器尺寸变化 (如果支持 ResizeObserver)
+        // Listen for container size changes (if ResizeObserver supported) 监听容器尺寸变化 (如果支持 ResizeObserver)
         if (window.ResizeObserver) {
             this.setupContainerObserver();
         }
     }
 
     setupZoomDetection() {
-        // 检测缩放级别变化
+        // Detect zoom level changes 检测缩放级别变化
         let lastZoom = window.devicePixelRatio;
         
         const checkZoom = () => {
@@ -91,10 +95,10 @@ class FeynmanApp {
             }
         };
         
-        // 定期检查缩放变化，保存引用以便清理
+        // Periodically check zoom changes, save reference for cleanup 定期检查缩放变化，保存引用以便清理
         this.zoomCheckInterval = setInterval(checkZoom, 500);
         
-        // 监听视觉视口变化 (现代浏览器)
+        // Listen for visual viewport changes (modern browsers) 监听视觉视口变化 (现代浏览器)
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', () => {
                 this.handleVisualViewportChange();
@@ -121,7 +125,7 @@ class FeynmanApp {
     }
 
     handleZoomChange(zoomLevel) {
-        // 当缩放级别改变时，调整布局
+        // Adjust layout when zoom level changes 当缩放级别改变时，调整布局
         const container = document.querySelector('.container');
         
         if (!container) {
@@ -142,14 +146,14 @@ class FeynmanApp {
     }
 
     handleVisualViewportChange() {
-        // 处理视觉视口变化 (缩放、键盘等)
+        // Handle visual viewport changes (zoom, keyboard, etc) 处理视觉视口变化 (缩放、键盘等)
         const visualViewport = window.visualViewport;
         const layoutViewport = {
             width: window.innerWidth,
             height: window.innerHeight
         };
         
-        // 计算缩放比例
+        // Calculate zoom ratio 计算缩放比例
         const scale = layoutViewport.width / visualViewport.width;
         
         if (scale !== 1) {
@@ -158,7 +162,7 @@ class FeynmanApp {
     }
 
     handleContainerResize(width) {
-        // 基于容器实际宽度调整布局
+        // Adjust layout based on actual container width 基于容器实际宽度调整布局
         if (width < 800) {
             this.setCompactLayout(true);
         } else {
@@ -211,24 +215,24 @@ class FeynmanApp {
         this.isMobile = window.innerWidth <= 767;
         this.isTablet = window.innerWidth <= 1023 && window.innerWidth > 767;
         
-        // 如果设备类型发生变化，重新优化
+        // If device type changed, re-optimize 如果设备类型发生变化，重新优化
         if (wasMobile !== this.isMobile || wasTablet !== this.isTablet) {
             this.optimizeForDevice();
         }
         
-        // 调整文本区域高度
+        // Adjust textarea height 调整文本区域高度
         this.adjustTextareaHeight();
     }
 
     handleOrientationChange() {
-        // 横屏时调整布局
+        // Adjust layout for landscape 横屏时调整布局
         if (window.orientation === 90 || window.orientation === -90) {
-            // 横屏模式
+            // Landscape mode 横屏模式
             if (this.isMobile) {
                 this.userInput.style.height = '120px';
             }
         } else {
-            // 竖屏模式
+            // Portrait mode 竖屏模式
             this.optimizeForDevice();
         }
     }
@@ -236,17 +240,17 @@ class FeynmanApp {
     setupMobileKeyboardHandlers() {
         let initialViewportHeight = window.innerHeight;
         
-        // 检测虚拟键盘
+        // Detect virtual keyboard 检测虚拟键盘
         const detectKeyboard = () => {
             const currentHeight = window.innerHeight;
             const heightDiff = initialViewportHeight - currentHeight;
             
             if (heightDiff > 150) {
-                // 键盘弹出
+                // Keyboard shown 键盘弹出
                 document.body.classList.add('keyboard-visible');
                 this.adjustForKeyboard(true);
             } else {
-                // 键盘收起
+                // Keyboard hidden 键盘收起
                 document.body.classList.remove('keyboard-visible');
                 this.adjustForKeyboard(false);
             }
@@ -254,7 +258,7 @@ class FeynmanApp {
         
         window.addEventListener('resize', detectKeyboard);
         
-        // 输入框获得焦点时
+        // When input field gains focus 输入框获得焦点时
         this.userInput.addEventListener('focus', () => {
             if (this.isMobile) {
                 setTimeout(detectKeyboard, 300);
@@ -264,10 +268,10 @@ class FeynmanApp {
 
     adjustForKeyboard(keyboardVisible) {
         if (keyboardVisible) {
-            // 键盘弹出时的优化
+            // Optimization when keyboard shown 键盘弹出时的优化
             this.userInput.style.height = '100px';
             
-            // 滚动到输入框
+            // Scroll to input field 滚动到输入框
             setTimeout(() => {
                 this.userInput.scrollIntoView({ 
                     behavior: 'smooth', 
@@ -275,7 +279,7 @@ class FeynmanApp {
                 });
             }, 300);
         } else {
-            // 键盘收起时恢复
+            // Restore when keyboard hidden 键盘收起时恢复
             this.optimizeForDevice();
         }
     }
@@ -289,7 +293,7 @@ class FeynmanApp {
             this.optimizeForDesktop();
         }
         
-        // 显示调试信息 (开发模式)
+        // Show debug info (development mode) 显示调试信息 (开发模式)
         if (window.location.search.includes('debug=true')) {
             this.showResponsiveDebugInfo();
         }
@@ -332,30 +336,30 @@ class FeynmanApp {
     }
 
     optimizeForMobile() {
-        // 移动端特定优化
+        // Mobile-specific optimizations 移动端特定优化
         this.userInput.style.height = '180px';
         
-        // 防止iOS缩放
+        // Prevent iOS zooming 防止iOS缩放
         this.userInput.style.fontSize = '16px';
         
-        // 优化触摸体验
+        // Optimize touch experience 优化触摸体验
         this.addTouchOptimizations();
     }
 
     optimizeForTablet() {
-        // 平板端优化
+        // Tablet optimizations 平板端优化
         this.userInput.style.height = '280px';
         this.userInput.style.fontSize = '16px';
     }
 
     optimizeForDesktop() {
-        // 桌面端优化 - 让CSS控制高度
+        // Desktop optimizations - let CSS control height 桌面端优化 - 让CSS控制高度
         this.userInput.style.height = '';
         this.userInput.style.fontSize = '16px';
     }
 
     addTouchOptimizations() {
-        // 添加触摸反馈
+        // Add touch feedback 添加触摸反馈
         const buttons = document.querySelectorAll('.send-btn, .clear-btn, .response-btn, .skip-btn');
         
         buttons.forEach(button => {
@@ -372,10 +376,10 @@ class FeynmanApp {
     }
 
     adjustTextareaHeight() {
-        // 动态调整文本区域高度
+        // Dynamically adjust textarea height 动态调整文本区域高度
         const container = document.querySelector('.container');
         const containerHeight = container.clientHeight;
-        const availableHeight = window.innerHeight - 200; // 减去header和padding
+        const availableHeight = window.innerHeight - 200; // Subtract header and padding 减去header和padding
         
         if (this.isMobile && containerHeight > availableHeight) {
             this.userInput.style.height = Math.max(120, availableHeight * 0.3) + 'px';
@@ -383,7 +387,7 @@ class FeynmanApp {
     }
 
     createAutoSendControls() {
-        // 在输入区域添加智能发送控制
+        // Add smart send controls to input area 在输入区域添加智能发送控制
         const controlsDiv = document.querySelector('.input-controls');
         
         if (!controlsDiv) {
@@ -406,7 +410,7 @@ class FeynmanApp {
         
         controlsDiv.insertBefore(autoSendToggle, controlsDiv.firstChild);
         
-        // 绑定开关事件
+        // Bind switch event 绑定开关事件
         const checkbox = document.getElementById('autoSendCheckbox');
         if (checkbox) {
             checkbox.addEventListener('change', (e) => {
@@ -420,13 +424,13 @@ class FeynmanApp {
         this.sendBtn.addEventListener('click', () => this.handleManualSend());
         this.clearBtn.addEventListener('click', () => this.handleClear());
         
-        // 智能输入监听
+        // Smart input listening 智能输入监听
         this.userInput.addEventListener('input', () => this.handleInputChange());
         this.userInput.addEventListener('paste', () => {
             setTimeout(() => this.handleInputChange(), 100);
         });
         
-        // 支持Ctrl+Enter发送
+        // Support Ctrl+Enter to send 支持Ctrl+Enter发送
         this.userInput.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'Enter') {
                 this.handleManualSend();
@@ -437,12 +441,12 @@ class FeynmanApp {
     handleInputChange() {
         if (!this.autoSendEnabled || this.isProcessing) return;
         
-        // 清除之前的定时器
+        // Clear previous timer 清除之前的定时器
         if (this.typingTimer) {
             clearTimeout(this.typingTimer);
         }
         
-        // 设置新的定时器，用户停止输入1秒后检查
+        // Set new timer, check after user stops typing for 1 second 设置新的定时器，用户停止输入1秒后检查
         this.typingTimer = setTimeout(() => {
             this.checkAutoSend();
         }, 1000);
@@ -459,12 +463,12 @@ class FeynmanApp {
         const shouldSend = this.shouldTriggerAutoSend(newContent, currentContent);
         
         if (shouldSend) {
-            this.handleAutoSend(currentContent); // 发送全部内容
+            this.handleAutoSend(currentContent); // Send all content 发送全部内容
         }
     }
 
     shouldTriggerAutoSend(newContent, fullContent) {
-        // 触发条件：100个字以上且以句号（中文或英文）结尾
+        // Trigger condition: more than 100 characters and ends with period (Chinese or English) 触发条件：100个字以上且以句号（中文或英文）结尾
         const contentLength = this.getContentLength(newContent);
         const endsWithPeriod = /[。\.]$/.test(newContent.trim());
         
@@ -472,7 +476,7 @@ class FeynmanApp {
     }
 
     getContentLength(text) {
-        // 智能计算内容长度（中文字符 + 英文单词）
+        // Intelligently calculate content length (Chinese characters + English words) 智能计算内容长度（中文字符 + 英文单词）
         const chineseChars = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
         const englishWords = (text.match(/[a-zA-Z]+/g) || []).length;
         return chineseChars + englishWords;
@@ -485,13 +489,13 @@ class FeynmanApp {
         this.updateAutoSendStatus('Analyzing...');
         
         try {
-            // 使用统一的分析接口，传入isSegment标识
+            // Use unified analysis interface, pass isSegment identifier 使用统一的分析接口，传入isSegment标识
             const response = await this.sendToAI(fullContent, true);
             
-            // 显示AI的实时反馈
+            // Display AI's real-time feedback 显示AI的实时反馈
             this.displaySegmentComments(response.comments, fullContent);
             
-            // 更新已发送长度
+            // Update sent length 更新已发送长度
             this.lastSentLength = this.userInput.value.trim().length;
             this.sentSegments.push({
                 content: fullContent,
@@ -539,8 +543,8 @@ class FeynmanApp {
             },
             body: JSON.stringify({ 
                 content,
-                isSegment,  // 是否为分段分析
-                isFinal     // 是否为最终分析
+                isSegment,  // Whether it's segmented analysis 是否为分段分析
+                isFinal     // Whether it's final analysis 是否为最终分析
             })
         });
 
@@ -552,9 +556,9 @@ class FeynmanApp {
     }
 
     displaySegmentComments(comments, segmentContent) {
-        // 首次出现分析结果时隐藏欢迎提示
+        // Hide welcome prompt when analysis results first appear 首次出现分析结果时隐藏欢迎提示
         this.hideWelcomeMessage();
-        // 添加分段标识
+        // Add segment identifier 添加分段标识
         const segmentDiv = document.createElement('div');
         segmentDiv.className = 'segment-divider';
         segmentDiv.innerHTML = `
@@ -565,13 +569,13 @@ class FeynmanApp {
         `;
         this.aiComments.appendChild(segmentDiv);
         
-        // 显示评论
+        // Display comments 显示评论
         comments.forEach((comment, index) => {
             setTimeout(() => {
                 const commentDiv = document.createElement('div');
                 commentDiv.className = `ai-comment ${comment.type} segment-comment`;
                 
-                // 创建内容容器
+                // Create content container 创建内容容器
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'comment-content';
                 contentDiv.innerHTML = `
@@ -592,9 +596,9 @@ class FeynmanApp {
     }
 
     displayFinalComments(comments) {
-        // 确保最终综合分析前也隐藏欢迎信息（兜底）
+        // Ensure welcome message is hidden before final comprehensive analysis (fallback) 确保最终综合分析前也隐藏欢迎信息（兜底）
         this.hideWelcomeMessage();
-        // 添加最终分析标识
+        // Add final analysis identifier 添加最终分析标识
         const finalDiv = document.createElement('div');
         finalDiv.className = 'final-analysis-divider';
         finalDiv.innerHTML = `
@@ -605,13 +609,13 @@ class FeynmanApp {
         `;
         this.aiComments.appendChild(finalDiv);
         
-        // 显示最终评论
+        // Display final comments 显示最终评论
         comments.forEach((comment, index) => {
             setTimeout(() => {
                 const commentDiv = document.createElement('div');
                 commentDiv.className = `ai-comment ${comment.type} final-comment`;
                 
-                // 创建内容容器
+                // Create content container 创建内容容器
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'comment-content';
                 contentDiv.innerHTML = `
@@ -666,6 +670,7 @@ class FeynmanApp {
         this.lastSentLength = 0;
         this.sentSegments = [];
         this.isProcessing = false;
+        this.conversationHistories = {};  // Clear all conversation histories 清除所有对话历史
         this.updateAutoSendStatus();
     }
 
@@ -677,7 +682,7 @@ class FeynmanApp {
                 <p>Please start explaining the topic, I will listen carefully and ask questions!</p>
             </div>
         `;
-        this.welcomeHidden = false; // 重置欢迎消息标志
+        this.welcomeHidden = false; // Reset welcome message flag 重置欢迎消息标志
         this.resetAutoSendState();
     }
 
@@ -772,22 +777,39 @@ class FeynmanApp {
 
     async handleResponse(commentId, response, responseDiv) {
         try {
-            // 禁用控件
+            // Disable controls 禁用控件
             this.setResponseLoading(responseDiv, true);
             
-            // 获取原始问题内容（从父元素中找到）
+            // Get original question content (find from parent element) 获取原始问题内容（从父元素中找到）
             const commentDiv = responseDiv.closest('.ai-comment');
             const originalQuestion = commentDiv ? commentDiv.querySelector('p').textContent : '';
             
-            // 发送回答到AI
-            const aiReply = await this.sendResponse(commentId, response, originalQuestion);
+            // Extract base comment ID (remove _followup_* suffix) 提取基础评论ID（移除_followup_*后缀）
+            const baseCommentId = commentId.split('_followup_')[0];
             
-            // 根据AI的理解状态显示不同的反馈
+            // Get conversation history for this comment thread 获取此评论线程的对话历史
+            const conversationHistory = this.conversationHistories[baseCommentId] || [];
+            
+            // Send answer to AI with conversation history 发送回答到AI，包含对话历史
+            const aiReply = await this.sendResponse(commentId, response, originalQuestion, conversationHistory);
+            
+            // Add current exchange to conversation history 将当前交换添加到对话历史
+            if (!this.conversationHistories[baseCommentId]) {
+                this.conversationHistories[baseCommentId] = [];
+            }
+            this.conversationHistories[baseCommentId].push({
+                question: originalQuestion,
+                answer: response
+            });
+            
+            // Display different feedback based on AI's understanding status 根据AI的理解状态显示不同的反馈
             if (aiReply.understood) {
-                // AI完全理解了，显示满意的反馈，不再追问
+                // AI fully understood, show satisfied feedback, no more follow-up AI完全理解了，显示满意的反馈，不再追问
                 this.displayFinalFeedback(responseDiv, aiReply.feedback);
+                // Clear conversation history for this thread when understood 理解后清除此线程的对话历史
+                delete this.conversationHistories[baseCommentId];
             } else {
-                // AI还有困惑，显示反馈并继续追问（传入commentDiv以便在外面创建追问）
+                // AI still has confusion, show feedback and continue follow-up (pass commentDiv to create follow-up outside) AI还有困惑，显示反馈并继续追问（传入commentDiv以便在外面创建追问）
                 this.displayFollowUpFeedback(responseDiv, commentDiv, aiReply.feedback, aiReply.followUpQuestion, commentId);
             }
             
@@ -799,7 +821,7 @@ class FeynmanApp {
         }
     }
 
-    async sendResponse(commentId, response, originalQuestion = '') {
+    async sendResponse(commentId, response, originalQuestion = '', conversationHistory = []) {
         const apiResponse = await fetch('/api/respond', {
             method: 'POST',
             headers: {
@@ -808,7 +830,8 @@ class FeynmanApp {
             body: JSON.stringify({ 
                 commentId,
                 response,
-                originalQuestion
+                originalQuestion,
+                conversationHistory  // Include conversation history 包含对话历史
             })
         });
 
@@ -829,18 +852,18 @@ class FeynmanApp {
             <p class="feedback-content">${feedback.content}</p>
         `;
         
-        // 替换控件区域
+        // Replace controls area 替换控件区域
         const controlsDiv = responseDiv.querySelector('.response-controls');
         responseDiv.replaceChild(feedbackDiv, controlsDiv);
         
-        // 滚动到反馈位置
+        // Scroll to feedback position 滚动到反馈位置
         setTimeout(() => {
             feedbackDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);
     }
 
     displayFinalFeedback(responseDiv, feedbackText) {
-        // AI完全理解了，显示满意的反馈
+        // AI fully understood, show satisfied feedback AI完全理解了，显示满意的反馈
         const feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'response-feedback understood';
         feedbackDiv.innerHTML = `
@@ -855,7 +878,7 @@ class FeynmanApp {
             </div>
         `;
         
-        // 替换输入区域和控件
+        // Replace input area and controls 替换输入区域和控件
         const inputArea = responseDiv.querySelector('.response-input');
         const controlsDiv = responseDiv.querySelector('.response-controls');
         
@@ -866,14 +889,14 @@ class FeynmanApp {
             responseDiv.appendChild(feedbackDiv);
         }
         
-        // 滚动到反馈位置
+        // Scroll to feedback position 滚动到反馈位置
         setTimeout(() => {
             feedbackDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 100);
     }
 
     displayFollowUpFeedback(responseDiv, currentCommentDiv, feedbackText, followUpQuestion, commentId) {
-        // AI还有困惑，先在当前位置显示反馈
+        // AI still has confusion, first show feedback at current position AI还有困惑，先在当前位置显示反馈
         const feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'response-feedback follow-up';
         feedbackDiv.innerHTML = `
@@ -888,7 +911,7 @@ class FeynmanApp {
             </div>
         `;
         
-        // 替换原来的输入区域和控件
+        // Replace original input area and controls 替换原来的输入区域和控件
         const inputArea = responseDiv.querySelector('.response-input');
         const controlsDiv = responseDiv.querySelector('.response-controls');
         
@@ -899,16 +922,16 @@ class FeynmanApp {
             responseDiv.appendChild(feedbackDiv);
         }
         
-        // 创建追问部分（要追加到原始问题评论的末尾，与其他追问平行）
+        // Create follow-up section (to be appended to end of original question comment, parallel with other follow-ups) 创建追问部分（要追加到原始问题评论的末尾，与其他追问平行）
         const followUpSection = document.createElement('div');
         followUpSection.className = 'follow-up-nested-section';
         
-        // 直接创建分隔线
+        // Directly create divider 直接创建分隔线
         const divider = document.createElement('div');
         divider.className = 'follow-up-divider';
         followUpSection.appendChild(divider);
         
-        // 创建追问问题框
+        // Create follow-up question box 创建追问问题框
         const questionBox = document.createElement('div');
         questionBox.className = 'follow-up-question-box';
         questionBox.innerHTML = `
@@ -920,21 +943,21 @@ class FeynmanApp {
         `;
         followUpSection.appendChild(questionBox);
         
-        // 创建新的回应区域
+        // Create new response area 创建新的回应区域
         const newCommentId = `${commentId}_followup_${Date.now()}`;
         const newResponseSection = this.createResponseSection(newCommentId);
         followUpSection.appendChild(newResponseSection);
         
-        // 找到最顶层的评论div（原始问题），将新追问追加到它的末尾
-        // 这样所有追问都是原始问题的直接子元素，保持平行
+        // Find top-level comment div (original question), append new follow-up to its end 找到最顶层的评论div（原始问题），将新追问追加到它的末尾
+        // This way all follow-ups are direct children of original question, keeping them parallel 这样所有追问都是原始问题的直接子元素，保持平行
         if (currentCommentDiv) {
             currentCommentDiv.appendChild(followUpSection);
         } else {
-            // 兜底：如果找不到父评论，就追加到当前responseDiv
+            // Fallback: if parent comment not found, append to current responseDiv 兜底：如果找不到父评论，就追加到当前responseDiv
             responseDiv.appendChild(followUpSection);
         }
         
-        // 不自动滚动，让用户保持在当前位置查看反馈
+        // Don't auto-scroll, let user stay at current position to view feedback 不自动滚动，让用户保持在当前位置查看反馈
     }
 
     skipResponse(commentId, responseDiv) {
@@ -963,9 +986,9 @@ class FeynmanApp {
         }
     }
 
-    // 清理资源方法，防止内存泄漏
+    // Cleanup resources method, prevent memory leaks 清理资源方法，防止内存泄漏
     destroy() {
-        // 清理定时器
+        // Cleanup timers 清理定时器
         if (this.zoomCheckInterval) {
             clearInterval(this.zoomCheckInterval);
             this.zoomCheckInterval = null;
@@ -976,7 +999,7 @@ class FeynmanApp {
             this.typingTimer = null;
         }
         
-        // 清理观察者
+        // Cleanup observers 清理观察者
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
             this.resizeObserver = null;
@@ -984,18 +1007,18 @@ class FeynmanApp {
     }
 
     showNotification(message, type = 'info') {
-        // 创建通知元素
+        // Create notification element 创建通知元素
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
         
-        // 添加到页面
+        // Add to page 添加到页面
         document.body.appendChild(notification);
         
-        // 显示动画
+        // Show animation 显示动画
         setTimeout(() => notification.classList.add('show'), 100);
         
-        // 自动移除
+        // Auto remove 自动移除
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => document.body.removeChild(notification), 300);
@@ -1034,7 +1057,7 @@ class FeynmanApp {
     }
 }
 
-// 启动应用
+// Start application 启动应用
 document.addEventListener('DOMContentLoaded', () => {
     new FeynmanApp();
 });

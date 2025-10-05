@@ -1,5 +1,8 @@
 """
+Feynman Learning Assistant - Response Feedback Prompt Template
 费曼学习助手 - 回应反馈提示词模板
+
+Used for Feynman-style feedback on user answers
 用于对用户回答进行费曼式反馈
 """
 
