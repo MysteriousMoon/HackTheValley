@@ -314,5 +314,5 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 10001))
     debug_mode = os.getenv('FLASK_ENV') == 'development'
     
-    print(f'🚀 费曼学习助手运行在 http://localhost:{port}')
+    print(f'运行在 http://localhost:{port}')
     app.run(host='127.0.0.1', port=port, debug=debug_mode)
