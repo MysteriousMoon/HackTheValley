@@ -7,7 +7,7 @@ class FeynmanApp {
         this.aiStatus = document.getElementById('aiStatus');
         
         // Smart send related states 智能发送相关状态
-        this.autoSendEnabled = true;
+        this.autoSendEnabled = false;  // Default to disabled 默认关闭
         this.lastSentLength = 0;
         this.sentSegments = [];
         this.typingTimer = null;
@@ -489,8 +489,8 @@ class FeynmanApp {
         this.updateAutoSendStatus('Analyzing...');
         
         try {
-            // Use unified analysis interface, pass isSegment identifier 使用统一的分析接口，传入isSegment标识
-            const response = await this.sendToAI(fullContent, true);
+            // Use unified analysis interface 使用统一的分析接口
+            const response = await this.sendToAI(fullContent);
             
             // Display AI's real-time feedback 显示AI的实时反馈
             this.displaySegmentComments(response.comments, fullContent);
@@ -522,8 +522,8 @@ class FeynmanApp {
         this.setLoading(true);
         
         try {
-            // 使用统一的分析接口，传入isFinal标识
-            const response = await this.sendToAI(content, false, true);
+            // Use unified analysis interface 使用统一的分析接口
+            const response = await this.sendToAI(content);
             
             this.displayFinalComments(response.comments);
             this.resetAutoSendState();
@@ -535,16 +535,14 @@ class FeynmanApp {
         }
     }
 
-    async sendToAI(content, isSegment = false, isFinal = false) {
+    async sendToAI(content) {
         const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                content,
-                isSegment,  // Whether it's segmented analysis 是否为分段分析
-                isFinal     // Whether it's final analysis 是否为最终分析
+                content  // Only content is required 只需要content参数
             })
         });
 
@@ -878,11 +876,16 @@ class FeynmanApp {
             </div>
         `;
         
-        // Replace input area and controls 替换输入区域和控件
+        // Disable input area and keep the user's answer visible 禁用输入区域并保持用户的回答可见
         const inputArea = responseDiv.querySelector('.response-input');
         const controlsDiv = responseDiv.querySelector('.response-controls');
         
-        if (inputArea) inputArea.style.display = 'none';
+        if (inputArea) {
+            inputArea.disabled = true;
+            inputArea.style.opacity = '0.6';
+            inputArea.style.backgroundColor = '#f5f5f5';
+        }
+        
         if (controlsDiv) {
             responseDiv.replaceChild(feedbackDiv, controlsDiv);
         } else {
@@ -911,11 +914,16 @@ class FeynmanApp {
             </div>
         `;
         
-        // Replace original input area and controls 替换原来的输入区域和控件
+        // Disable input area and keep the user's answer visible 禁用输入区域并保持用户的回答可见
         const inputArea = responseDiv.querySelector('.response-input');
         const controlsDiv = responseDiv.querySelector('.response-controls');
         
-        if (inputArea) inputArea.style.display = 'none';
+        if (inputArea) {
+            inputArea.disabled = true;
+            inputArea.style.opacity = '0.6';
+            inputArea.style.backgroundColor = '#f5f5f5';
+        }
+        
         if (controlsDiv) {
             responseDiv.replaceChild(feedbackDiv, controlsDiv);
         } else {

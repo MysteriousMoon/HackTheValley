@@ -35,18 +35,12 @@ def analyze_content():
         # Get request data 获取请求数据
         data = request.get_json()
         content = data.get('content', '').strip()
-        is_segment = data.get('isSegment', False)
-        is_final = data.get('isFinal', False)
         
         if not content:
             return jsonify({'error': '内容不能为空'}), 400
         
-        # Both smart follow-up and manual send use 'final' type (using PROMPT_FINAL) 智能跟进和手动发送都使用 'final' 类型（使用 PROMPT_FINAL）
-        # Because PROMPT_FINAL's JSON format is more stable and reliable 因为 PROMPT_FINAL 的 JSON 格式更稳定可靠
-        analysis_type = 'final'
-        
         # Call unified analysis function 调用统一的分析函数
-        analysis = analyze_with_ai(content, analysis_type)
+        analysis = analyze_with_ai(content)
         
         return jsonify({
             'success': True,
@@ -179,14 +173,13 @@ def print_ai_response(response_text, response_type='analysis'):
     print(response_text)
     print(f'{"="*60}\n')
 
-def analyze_with_ai(content, analysis_type='final'):
+def analyze_with_ai(content):
     """
     Unified AI analysis function
     统一的 AI 分析函数
     
     Args:
         content: User's explanation content 用户讲解的内容
-        analysis_type: Analysis type (currently unified using 'final') 分析类型（目前统一使用 'final'）
     
     Returns:
         list: List of AI-generated comments AI 生成的评论列表

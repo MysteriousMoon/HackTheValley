@@ -731,7 +731,7 @@ header p {
 /* 完全理解的反馈 - 蓝紫色系 */
 .response-feedback.understood {
     background: #d3d7db;
-    border: 2px solid #356389;
+    border: 2px solid #b4d3ec;
 }
 
 .understood-badge {
@@ -874,7 +874,7 @@ header p {
 }
 
 .follow-up-question-box {
-    background: #e2e8f0;
+    background: #ecedef;
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 18px;
