@@ -730,7 +730,7 @@ header p {
 
 /* 完全理解的反馈 - 蓝紫色系 */
 .response-feedback.understood {
-    background: #356389;
+    background: #d3d7db;
     border: 2px solid #356389;
 }
 

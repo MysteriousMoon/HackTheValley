@@ -85,8 +85,8 @@ def respond_to_question():
         if not response:
             return jsonify({'error': '回答内容不能为空'}), 400
         
-        # 调用AI回应函数，返回结构化数据
-        feedback_data = respond_with_ai(response)
+        # 调用AI回应函数，传入原始问题和用户回答
+        feedback_data = respond_with_ai(response, original_question)
         
         return jsonify({
             'success': True,
@@ -96,7 +96,19 @@ def respond_to_question():
         })
         
     except Exception as e:
-        print(f'AI回应错误: {e}')
+        import traceback
+        print(f'===== AI回应错误 =====')
+        print(f'错误类型: {type(e).__name__}')
+        print(f'错误信息: {str(e)}')
+        print(f'完整堆栈:')
+        traceback.print_exc()
+        
+        # 如果异常对象包含AI原始响应，打印它
+        if hasattr(e, 'ai_response'):
+            print(f'===== AI原始输出 =====')
+            print(e.ai_response)
+        
+        print(f'=====================')
         return jsonify({
             'error': 'AI回应失败',
             'message': str(e)
@@ -216,17 +228,25 @@ def analyze_with_ai(content, analysis_type='final'):
             e.ai_response = ai_response  # 附加AI响应到异常
         raise
 
-def respond_with_ai(user_response):
+def respond_with_ai(user_response, original_question=''):
     """
     使用 Google Gemini 对用户的回答进行反馈
     
     Args:
         user_response: 用户的回答内容
+        original_question: AI之前提出的原始问题
     
     Returns:
         dict: AI 的反馈对象，包含 understood, feedback, followUpQuestion
     """
-    prompt = PROMPT_RESPOND.format(response=user_response)
+    ai_response = None  # 用于错误处理时访问
+    
+    # 使用原始问题和用户回答构建提示词
+    # 如果没有原始问题，提供一个更合理的默认值
+    prompt = PROMPT_RESPOND.format(
+        previous_question=original_question if original_question else "之前讨论的概念或问题",
+        teacher_answer=user_response
+    )
     
     try:
         # 初始化 Gemini 模型
@@ -268,6 +288,8 @@ def respond_with_ai(user_response):
             
     except Exception as e:
         print(f'Google Gemini API调用失败: {e}')
+        if ai_response and not hasattr(e, 'ai_response'):
+            e.ai_response = ai_response  # 附加AI响应到异常
         raise
 
 # ==================== 启动服务 ====================
