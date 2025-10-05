@@ -41,7 +41,7 @@ echo "GOOGLE_API_KEY=your_api_key_here" > .env
 python app.py
 ```
 
-Then open your browser and visit `http://localhost:5000`
+Then open your browser and visit `http://localhost:10001`
 
 ## How It Works
 
