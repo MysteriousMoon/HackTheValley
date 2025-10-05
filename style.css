@@ -176,7 +176,7 @@ header p {
 }
 
 .auto-send-toggle input:checked+.toggle-slider {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #50598d;
 }
 
 .auto-send-toggle input:checked+.toggle-slider::before {
@@ -309,9 +309,9 @@ header p {
 }
 
 .ai-status.thinking {
-    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    background: #356389;
     color: white;
-    border-color: #7c3aed;
+    border-color: #356389;
 }
 
 /* ==================== 配色方案 ==================== */
@@ -383,22 +383,22 @@ header p {
 
 /* 评论类型统一配色 - 蓝紫色系 */
 .ai-comment.question {
-    border-left-color: #667eea;
+    border-left-color: #356389;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(139, 92, 246, 0.06));
 }
 
 .ai-comment.concern {
-    border-left-color: #a78bfa;
+    border-left-color: #356389;
     background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.06));
 }
 
 .ai-comment.clarification {
-    border-left-color: #8b5cf6;
+    border-left-color: #356389;
     background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(102, 126, 234, 0.06));
 }
 
 .ai-comment.praise {
-    border-left-color: #06b6d4;
+    border-left-color: #356389;
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(8, 145, 178, 0.06));
 }
 
@@ -448,7 +448,7 @@ header p {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 18px;
     color: #64748b;
     font-weight: 500;
 }
@@ -468,14 +468,14 @@ header p {
 }
 
 .segment-comment {
-    border-left-color: #06b6d4;
+    border-left-color: #356389;
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(99, 102, 241, 0.08));
     margin-left: 12px;
     border-radius: 0 12px 12px 0;
 }
 
 .final-comment {
-    border-left-color: #8b5cf6;
+    border-left-color: #356389;
     background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(167, 139, 250, 0.1));
     box-shadow: 0 3px 12px rgba(139, 92, 246, 0.2);
 }
@@ -539,8 +539,9 @@ header p {
 }
 
 .response-btn {
-    background: linear-gradient(135deg, #667eea, #8b5cf6);
-    color: rgb(60, 82, 130);
+    background: #356389;
+    color: white;
+    font-weight: 600;
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -553,11 +554,11 @@ header p {
 
 .response-btn:hover {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    background: linear-gradient(135deg, #5568d3, #7c3aed);
+    background: #356389;
 }
 
 .response-btn:disabled {
-    background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+    background: #356389;
     cursor: not-allowed;
     box-shadow: none;
 }
@@ -583,7 +584,7 @@ header p {
     margin-top: 16px;
     padding: 16px;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(139, 92, 246, 0.08));
-    border: 2px solid #8b5cf6;
+    border: 2px solid #356389;
     border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
@@ -594,7 +595,7 @@ header p {
     align-items: center;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #5b21b6;
+    color: #356389;
 }
 
 .feedback-icon {
@@ -604,12 +605,12 @@ header p {
 }
 
 .feedback-title {
-    color: #6d28d9;
+    color: #356389;
     flex: 1;
 }
 
 .feedback-content {
-    color: #4c1d95;
+    color: #356389;
     line-height: 1.5;
     margin: 0;
     word-wrap: break-word;
@@ -671,7 +672,7 @@ header p {
         height: auto;
         min-height: 100vh;
     }
-    
+
     .content-wrapper {
         flex-direction: column;
         height: auto;
@@ -679,7 +680,7 @@ header p {
         gap: clamp(12px, 2vh, 20px);
         overflow: visible;
     }
-    
+
     .input-section,
     .ai-section {
         min-width: 0;
@@ -687,12 +688,12 @@ header p {
         height: auto;
         min-height: 300px;
     }
-    
+
     #userInput {
         min-height: 150px;
         height: 200px;
     }
-    
+
     .ai-comments {
         min-height: 200px;
         max-height: 400px;
@@ -700,6 +701,7 @@ header p {
 }
 
 @media (max-width: 768px) {
+
     .input-section,
     .ai-section {
         padding: clamp(14px, 2vh, 20px);
@@ -710,11 +712,11 @@ header p {
     .input-controls {
         flex-direction: column;
     }
-    
+
     .send-btn {
         width: 100%;
     }
-    
+
     .ai-header {
         flex-direction: column;
         align-items: flex-start;
@@ -728,14 +730,14 @@ header p {
 
 /* 完全理解的反馈 - 蓝紫色系 */
 .response-feedback.understood {
-    background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
-    border: 2px solid #8b5cf6;
+    background: #356389;
+    border: 2px solid #356389;
 }
 
 .understood-badge {
     margin-top: 16px;
     padding: 12px 16px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    background: #356389;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -759,13 +761,13 @@ header p {
 
 /* 部分理解的反馈 - 蓝紫色系 */
 .response-feedback.follow-up {
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    border: 2px solid #6366f1;
+    background: #356389;
+    border: 2px solid #356389;
 }
 
 .understood-badge.partial {
-    background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-    border: 2px solid #6366f1;
+    background: #356389;
+    border: 2px solid #356389;
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
 
@@ -779,37 +781,38 @@ header p {
 
 /* 响应式优化 */
 @media (max-width: 768px) {
+
     .understood-badge,
     .follow-up-section {
         padding: 10px 12px;
     }
-    
+
     .follow-up-question {
         padding: 8px 0;
         font-size: 0.9em;
     }
-    
+
     .follow-up-header,
     .follow-up-prompt {
         font-size: 0.85em;
     }
-    
+
     .follow-up-nested-section {
         padding: 12px;
         padding-left: 16px;
         margin-top: 16px;
     }
-    
+
     .follow-up-question-box {
         padding: 10px 12px;
     }
-    
+
     .response-input {
         font-size: 13px;
         padding: 10px 14px;
         min-height: 70px;
     }
-    
+
     .response-controls {
         gap: 6px;
     }
@@ -821,27 +824,27 @@ header p {
         text-align: center;
         gap: 6px;
     }
-    
+
     .follow-up-section {
         padding: 12px;
     }
-    
+
     .follow-up-nested-section {
         padding: 10px;
         padding-left: 12px;
         margin-top: 12px;
     }
-    
+
     .follow-up-question-box {
         padding: 8px 10px;
     }
-    
+
     .response-input {
         font-size: 12px;
         padding: 8px 12px;
         min-height: 60px;
     }
-    
+
     .response-btn,
     .skip-btn {
         font-size: 13px;
@@ -854,7 +857,7 @@ header p {
     margin-top: 20px;
     padding: 18px;
     padding-left: 22px;
-    border-left: 4px solid #6366f1;
+    border-left: 4px solid #356389;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(129, 140, 248, 0.04));
     border-radius: 0 12px 12px 0;
     animation: slideInFromLeft 0.4s ease-out;
@@ -864,18 +867,18 @@ header p {
 
 .follow-up-divider {
     height: 3px;
-    background: linear-gradient(to right, #6366f1 0%, #818cf8 50%, transparent 100%);
+    background: #356389;
     margin-bottom: 18px;
     opacity: 0.6;
     border-radius: 2px;
 }
 
 .follow-up-question-box {
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 40%, rgba(255, 255, 255, 0.9) 100%);
+    background: #356389;
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 18px;
-    border: 2px solid #818cf8;
+    border: 2px solid #356389;
     width: 100%;
     box-sizing: border-box;
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
@@ -886,7 +889,7 @@ header p {
     align-items: center;
     gap: 10px;
     margin-bottom: 12px;
-    color: #4338ca;
+    color: #356389;
     font-weight: 700;
     font-size: 0.96em;
 }
@@ -898,12 +901,12 @@ header p {
 
 .follow-up-title {
     flex: 1;
-    color: #4f46e5;
+    color: #356389;
     letter-spacing: 0.3px;
 }
 
 .follow-up-question {
-    color: #312e81;
+    color: #356389;
     line-height: 1.8;
     font-size: 0.96em;
     margin: 0;
@@ -921,13 +924,13 @@ header p {
 }
 
 .follow-up-nested-section .response-input {
-    border: 2px solid #818cf8;
+    border: 2px solid #356389;
     background: white;
     box-sizing: border-box;
 }
 
 .follow-up-nested-section .response-input:focus {
-    border-color: #6366f1;
+    border-color: #356389;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -943,6 +946,7 @@ header p {
         opacity: 0;
         transform: translateX(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);

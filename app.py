@@ -60,6 +60,12 @@ def analyze_content():
         print(f'错误信息: {str(e)}')
         print(f'完整堆栈:')
         traceback.print_exc()
+        
+        # 如果异常对象包含AI原始响应，打印它
+        if hasattr(e, 'ai_response'):
+            print(f'===== AI原始输出 =====')
+            print(e.ai_response)
+        
         print(f'=====================')
         return jsonify({
             'error': 'AI分析失败',
@@ -169,10 +175,12 @@ def analyze_with_ai(content, analysis_type='final'):
     Returns:
         list: AI 生成的评论列表
     """
-    # 使用 PROMPT_FINAL 模板
-    prompt = PROMPT_FINAL.format(content=content)
+    ai_response = None  # 用于错误处理时访问
     
     try:
+        # 使用 PROMPT_FINAL 模板
+        prompt = PROMPT_FINAL.format(content=content)
+        
         # 初始化 Gemini 模型
         model = genai.GenerativeModel('gemini-2.0-flash')
         
@@ -198,10 +206,14 @@ def analyze_with_ai(content, analysis_type='final'):
             print(f'===== JSON解析错误 =====')
             print(f'错误位置: {e.pos}, 行: {e.lineno}, 列: {e.colno}')
             print(f'错误信息: {e.msg}')
-            raise ValueError(f'AI返回的响应不是有效的JSON格式: {str(e)}')
+            error = ValueError(f'AI返回的响应不是有效的JSON格式: {str(e)}')
+            error.ai_response = ai_response  # 附加AI响应
+            raise error
             
     except Exception as e:
         print(f'Google Gemini API调用失败: {e}')
+        if ai_response and not hasattr(e, 'ai_response'):
+            e.ai_response = ai_response  # 附加AI响应到异常
         raise
 
 def respond_with_ai(user_response):
