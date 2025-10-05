@@ -10,6 +10,9 @@ from prompts import PROMPT_FINAL, PROMPT_RESPOND
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+generation_config = {
+  "temperature": 0.4
+}
 
 app = Flask(__name__)
 CORS(app)  # Allow cross-origin requests 允许跨域请求
@@ -194,7 +197,10 @@ def analyze_with_ai(content):
         model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Generate response 生成回复
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+            prompt,
+            generation_config=generation_config
+        )
         ai_response = response.text
         
         # Print AI raw response 打印AI原始响应
@@ -269,7 +275,10 @@ def respond_with_ai(user_response, original_question='', conversation_history=No
         model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Generate response 生成回复
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+            prompt,
+            generation_config=generation_config
+        )
         ai_response = response.text.strip()
         
         # Print AI feedback response 打印AI反馈响应
