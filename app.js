@@ -5,6 +5,7 @@ class FeynmanApp {
         this.clearBtn = document.getElementById('clearBtn');
         this.aiComments = document.getElementById('aiComments');
         this.aiStatus = document.getElementById('aiStatus');
+        this.modeSwitchBtn = document.getElementById('modeSwitchBtn');
         
         // Settings related 设置相关
         this.settingsBtn = document.getElementById('settingsBtn');
@@ -49,6 +50,41 @@ class FeynmanApp {
         this.optimizeForDevice();
         this.showWelcomeMessage();
         this.updateApiKeyDisplay();
+        this.initializeMarkdown();
+    }
+
+    // Initialize Markdown renderer 初始化Markdown渲染器
+    initializeMarkdown() {
+        if (typeof marked !== 'undefined') {
+            // Configure marked options 配置marked选项
+            marked.setOptions({
+                breaks: true,  // Support GFM line breaks 支持GFM换行
+                gfm: true,     // Enable GitHub Flavored Markdown 启用GitHub风格Markdown
+                headerIds: false,  // Disable header IDs 禁用标题ID
+                mangle: false      // Don't mangle email addresses 不混淆邮箱地址
+            });
+        }
+    }
+
+    // Render Markdown to HTML 渲染Markdown为HTML
+    renderMarkdown(text) {
+        if (typeof marked !== 'undefined') {
+            try {
+                return marked.parse(text);
+            } catch (error) {
+                console.error('Markdown rendering error:', error);
+                return this.escapeHtml(text);
+            }
+        }
+        // Fallback: if marked not loaded, escape HTML 兜底：如果marked未加载，转义HTML
+        return this.escapeHtml(text);
+    }
+
+    // Escape HTML special characters HTML转义
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // Settings related methods 设置相关方法
@@ -532,6 +568,7 @@ class FeynmanApp {
     bindEvents() {
         this.sendBtn.addEventListener('click', () => this.handleManualSend());
         this.clearBtn.addEventListener('click', () => this.handleClear());
+        this.modeSwitchBtn.addEventListener('click', () => this.switchMode());
         
         // Smart input listening 智能输入监听
         this.userInput.addEventListener('input', () => this.handleInputChange());
@@ -545,6 +582,10 @@ class FeynmanApp {
                 this.handleManualSend();
             }
         });
+    }
+
+    switchMode() {
+        window.location.href = 'teacher.html';
     }
 
     handleInputChange() {
@@ -688,7 +729,7 @@ class FeynmanApp {
                 contentDiv.className = 'comment-content';
                 contentDiv.innerHTML = `
                     <strong>${this.getCommentIcon(comment.type)} ${comment.title}</strong>
-                    <p>${comment.content}</p>
+                    <div class="markdown-content">${this.renderMarkdown(comment.content)}</div>
                 `;
                 commentDiv.appendChild(contentDiv);
                 
@@ -728,7 +769,7 @@ class FeynmanApp {
                 contentDiv.className = 'comment-content';
                 contentDiv.innerHTML = `
                     <strong>${this.getCommentIcon(comment.type)} ${comment.title}</strong>
-                    <p>${comment.content}</p>
+                    <div class="markdown-content">${this.renderMarkdown(comment.content)}</div>
                 `;
                 commentDiv.appendChild(contentDiv);
                 
@@ -980,7 +1021,7 @@ class FeynmanApp {
                 <span class="feedback-icon">✅</span>
                 <span class="feedback-title">AI Student's Understanding:</span>
             </div>
-            <p class="feedback-content">${feedbackText}</p>
+            <div class="markdown-content feedback-content">${this.renderMarkdown(feedbackText)}</div>
             <div class="understood-badge">
                 <span class="badge-icon">🎉</span>
                 <span class="badge-text">Fully understood! This question is resolved.</span>
@@ -1018,7 +1059,7 @@ class FeynmanApp {
                 <span class="feedback-icon">🤔</span>
                 <span class="feedback-title">AI Student's Feedback:</span>
             </div>
-            <p class="feedback-content">${feedbackText}</p>
+            <div class="markdown-content feedback-content">${this.renderMarkdown(feedbackText)}</div>
             <div class="understood-badge partial">
                 <span class="badge-icon">💭</span>
                 <span class="badge-text">Partially understood, but still have questions</span>
@@ -1058,7 +1099,7 @@ class FeynmanApp {
                 <span class="follow-up-icon">❓</span>
                 <span class="follow-up-title">AI Student's Follow-up Question:</span>
             </div>
-            <p class="follow-up-question">${followUpQuestion}</p>
+            <div class="markdown-content follow-up-question">${this.renderMarkdown(followUpQuestion)}</div>
         `;
         followUpSection.appendChild(questionBox);
         

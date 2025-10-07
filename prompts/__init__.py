@@ -8,5 +8,6 @@ Centralized management of all AI prompt templates
 
 from .final_analysis_prompt import PROMPT_FINAL
 from .response_feedback_prompt import PROMPT_RESPOND
+from .teacher_mode_prompt import PROMPT_TEACH, PROMPT_ANSWER_QUESTION
 
-__all__ = ['PROMPT_FINAL', 'PROMPT_RESPOND']
+__all__ = ['PROMPT_FINAL', 'PROMPT_RESPOND', 'PROMPT_TEACH', 'PROMPT_ANSWER_QUESTION']

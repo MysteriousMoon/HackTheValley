@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Teacher - Learning Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="settings-style.css">
+    <link rel="stylesheet" href="teacher-style.css">
+    <!-- Markdown rendering support -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>👨‍🏫 AI Teacher - Learning Assistant</h1>
+        <p>AI teacher explains concepts, you can ask questions anytime</p>
+        <button id="settingsBtn" class="settings-btn" aria-label="Settings">⚙️</button>
+        <button id="modeSwitchBtn" class="mode-switch-btn" aria-label="Switch Mode">
+            🔄 Switch to Student Mode
+        </button>
+    </header>
+    
+    <!-- Settings Modal 设置模态框 -->
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label for="apiKeyInput">Google Gemini API Key (Optional):</label>
+                    <input 
+                        type="password" 
+                        id="apiKeyInput" 
+                        class="api-key-input"
+                        placeholder="Enter your API key here..."
+                    >
+                    <button id="toggleApiKeyVisibility" class="toggle-visibility-btn" type="button">👁️</button>
+                    <small class="setting-hint">
+                        Leave empty to use default API key. Your custom key will be saved locally.
+                    </small>
+                </div>
+                <div class="setting-actions">
+                    <button id="saveSettings" class="save-btn">💾 Save</button>
+                    <button id="clearApiKey" class="clear-key-btn">🗑️ Clear Custom Key</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <main class="container">
+        <div class="content-wrapper">
+            <!-- Left: AI Teaching Content Area 左侧：AI教学内容区域 -->
+            <section class="teaching-section" aria-label="AI Teacher Teaching Area">
+                <!-- Drag & Drop Overlay 拖拽覆盖层 -->
+                <div class="drag-drop-overlay" id="dragDropOverlay">
+                    <div class="drag-drop-message">
+                        📷 Drop image here to upload
+                    </div>
+                </div>
+                
+                <div class="teaching-header">
+                    <h2>👨‍🏫 AI Teacher's Lesson</h2>
+                    <div class="teaching-status" id="teachingStatus" aria-live="polite">Ready to teach...</div>
+                </div>
+                
+                <!-- Topic Input 主题输入 -->
+                <div class="topic-input-inline">
+                    <input 
+                        type="text" 
+                        id="topicInput"
+                        placeholder="Enter a topic to learn... e.g., 'Photosynthesis', 'Blockchain'..."
+                        aria-label="Learning Topic Input"
+                    >
+                    <button id="uploadImageBtn" class="upload-btn-inline" aria-label="Upload Image" title="Upload an image (or drag & drop to left panel)">
+                        📷 Upload
+                    </button>
+                    <button id="startTeachingBtn" class="teach-btn-inline" aria-label="Start Learning">
+                        ✨ Start
+                    </button>
+                    <input 
+                        type="file" 
+                        id="imageInput" 
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        style="display: none;"
+                    >
+                </div>
+                
+                <!-- Image Preview 图片预览 -->
+                <div class="image-preview-section" id="imagePreviewSection" style="display: none;">
+                    <div class="preview-header">
+                        <span class="preview-icon">📷</span>
+                        <span class="preview-title">Learning Material</span>
+                        <button class="remove-image-btn" id="removeImageBtn" title="Remove image">
+                            × Remove
+                        </button>
+                    </div>
+                    <div class="preview-content">
+                        <img id="previewImg" src="" alt="Preview">
+                    </div>
+                </div>
+                
+                <!-- Teaching Content Display 教学内容显示 -->
+                <div class="teaching-content" id="teachingContent" aria-live="polite" aria-label="Teaching Content">
+                    <div class="welcome-message-teacher">
+                        <p>👋 Hello! I'm your AI teacher.</p>
+                        <p>Enter a topic you'd like to learn about, and I'll explain it clearly!</p>
+                        <p>💡 <strong>Tip:</strong> You can drag & drop an image here or click 📷 Upload button!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Student Q&A Area 右侧：学生问答区域 -->
+            <section class="qa-section" aria-label="Student Questions and Answers">
+                <div class="qa-header">
+                    <h2>💬 Your Questions & Answers</h2>
+                    <div class="qa-status" id="qaStatus" aria-live="polite">No questions yet...</div>
+                </div>
+                
+                <div class="qa-content" id="qaContent" aria-live="polite" aria-label="Q&A Content">
+                    <div class="qa-welcome-message">
+                        <p>🙋 Ask questions here!</p>
+                        <p>Once the lesson starts, you can ask anything you're curious about.</p>
+                    </div>
+                </div>
+                
+                <!-- Question Input Area 提问输入区域 -->
+                <div class="question-input-section">
+                    <textarea 
+                        id="questionInput"
+                        class="question-input-main"
+                        placeholder="Type your question here..."
+                        rows="3"
+                        disabled
+                    ></textarea>
+                    <div class="question-input-controls">
+                        <button id="askQuestionBtn" class="ask-btn-main" disabled>
+                            ✨ Ask Question
+                        </button>
+                        <button id="clearQABtn" class="clear-btn">
+                            🗑️ Clear Q&A
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="teacher.js?v=2.8"></script>
+</body>
+
+</html>
